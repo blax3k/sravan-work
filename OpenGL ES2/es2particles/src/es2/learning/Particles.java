@@ -15,7 +15,7 @@ public class Particles extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         view = new ParticleView(this);
         view.setEGLContextClientVersion(2);
-        view.setRenderer(new ParticleRenderer(view));        
+        view.setRenderer(new ParticleRenderer(view));
         setContentView(view);
     }
 }
