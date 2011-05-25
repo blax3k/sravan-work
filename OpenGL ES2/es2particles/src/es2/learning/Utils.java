@@ -52,7 +52,6 @@ public class Utils {
 		int iFShader;
 		int iProgId;
 		int[] link = new int[1];
-		
 		iVShader = LoadShader(strVSource, GLES20.GL_VERTEX_SHADER);
 		if (iVShader == 0)
 		{

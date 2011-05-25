@@ -16,6 +16,8 @@ public class ParticleRenderer implements Renderer {
 	int iTexture;
 	int iColor;
 	int iTexId;
+	int iMove;
+	int iTimes;
 	ParticleView curView;
 	float[] fVertex = {0,0,0};
 	FloatBuffer vertexBuffer;
@@ -37,9 +39,9 @@ public class ParticleRenderer implements Renderer {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, iTexId);
 		
 		GLES20.glUniform1i(iTexture, 0);
-		GLES20.glUniform4f(iColor, 0.5f, 1f, 0.5f, 1f);
+//		GLES20.glUniform4f(iColor, 0.5f, 1f, 0.5f, 1f);
 		
-		curView.mgr.draw(iPosition);
+		curView.mgr.draw(iPosition, iMove, iTimes, iColor);
 		
 //		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, 1);
 	}
@@ -53,32 +55,42 @@ public class ParticleRenderer implements Renderer {
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		
 		GLES20.glClearColor(0, 0, 0, 1);
+		GLES20.glDisable(GLES20.GL_DEPTH_TEST);
 		GLES20.glEnable(GLES20.GL_BLEND);
 		GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE);
 		
 		String strVShader = 
 			"attribute vec4 a_Position;" +
+			"attribute vec4 a_move;" +
+			"uniform float a_time;" +
+			"attribute vec3 a_color;" +
+			"varying vec3 v_color;" +
 			"void main()" +
 			"{" +
-				"gl_PointSize = 20.0;" +
-				"gl_Position = a_Position;" +
+				"v_color = a_color;" +
+				"gl_PointSize = 10.0;" +
+				"gl_Position = a_Position;" +				
+				"gl_Position += (a_time * a_move * 0.5);" +
+				"gl_Position.w = 1.0;" +
 			"}";
 		
 		String strFShader = 
 			"precision mediump float;" +
 			"uniform sampler2D u_texture;" +
-			"uniform vec4 u_color;" +
+			"varying vec3 v_color;" +
 			"void main()" +
-			"{" +
+			"{" +				
 				"vec4 tex = texture2D(u_texture, gl_PointCoord);" +
-				"gl_FragColor = u_color * tex;" +
+				"gl_FragColor = vec4(v_color,0.5) * tex;" +
 			"}";
 		iProgId = Utils.LoadProgram(strVShader, strFShader);
-		iPosition = GLES20.glGetAttribLocation(iProgId, "a_Position");
-		iTexture = GLES20.glGetUniformLocation(iProgId, "u_texture");
-		iColor = GLES20.glGetUniformLocation(iProgId, "u_color");
 		iTexId = Utils.LoadTexture(curView, R.drawable.particle);
 		
+		iPosition = GLES20.glGetAttribLocation(iProgId, "a_Position");
+		iTexture = GLES20.glGetUniformLocation(iProgId, "u_texture");
+		iColor = GLES20.glGetAttribLocation(iProgId, "a_color");
+		iMove = GLES20.glGetAttribLocation(iProgId, "a_move");
+		iTimes = GLES20.glGetUniformLocation(iProgId, "a_time"); 
 	}
-
+	
 }
