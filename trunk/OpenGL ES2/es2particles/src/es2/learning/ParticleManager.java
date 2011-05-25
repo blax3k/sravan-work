@@ -8,8 +8,9 @@ import java.util.Random;
 import android.opengl.GLES20;
 
 public class ParticleManager {
-	final static int NUM_PARTICLES = 400;
+	final static int NUM_PARTICLES = 800;
 	final static int PARTICLE_SIZE = 11;
+	float nTimeCounter = 0;
 	//each particle contains
 	//x,y,z,r,g,b,dx,dy,dz,life,age
 	float[] fVertices = new float[NUM_PARTICLES * PARTICLE_SIZE];
@@ -37,9 +38,9 @@ public class ParticleManager {
 			vel += inc;
 			angle = (int) (gen.nextFloat() * 360f);
 			//x,y,z
-			fVertices[i*PARTICLE_SIZE + 0] = centerX + gen.nextFloat();
-			fVertices[i*PARTICLE_SIZE + 1] = centerY + gen.nextFloat();
-			fVertices[i*PARTICLE_SIZE + 2] = centerZ + gen.nextFloat();
+			fVertices[i*PARTICLE_SIZE + 0] = centerX;
+			fVertices[i*PARTICLE_SIZE + 1] = centerY;
+			fVertices[i*PARTICLE_SIZE + 2] = centerZ;
 			//r,g,b
 			fVertices[i*PARTICLE_SIZE + 3] = gen.nextFloat();
 			fVertices[i*PARTICLE_SIZE + 4] = gen.nextFloat();
@@ -55,20 +56,34 @@ public class ParticleManager {
 			fVertices[i*PARTICLE_SIZE + 10] = Utils.rnd(0.01f, 0.1f);
 		}
 		vertexBuffer.put(fVertices).position(0);
+		pThread.SetRunning(true);
+		pThread.start();
 	}
 	
 	public void update()
 	{
-		
+		nTimeCounter+=0.01;
+		if (nTimeCounter >= 1.0)
+			nTimeCounter = 0;
 	}
 	
-	public void draw(int iPosition)
+	public void draw(int iPosition, int iMove, int iTimes, int iColor)
 	{
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 		
 		vertexBuffer.position(0);
 		GLES20.glVertexAttribPointer(iPosition, 3, GLES20.GL_FLOAT, false, PARTICLE_SIZE * 4, vertexBuffer);
 		GLES20.glEnableVertexAttribArray(iPosition);
+		
+		vertexBuffer.position(3);
+		GLES20.glVertexAttribPointer(iColor, 3, GLES20.GL_FLOAT, false, PARTICLE_SIZE * 4, vertexBuffer);
+		GLES20.glEnableVertexAttribArray(iColor);
+		
+		vertexBuffer.position(6);
+		GLES20.glVertexAttribPointer(iMove, 3, GLES20.GL_FLOAT, false, PARTICLE_SIZE * 4, vertexBuffer);
+		GLES20.glEnableVertexAttribArray(iMove);
+		
+		GLES20.glUniform1f(iTimes, nTimeCounter);
 		
 		GLES20.glDrawArrays(GLES20.GL_POINTS, 0, NUM_PARTICLES);
 	}
