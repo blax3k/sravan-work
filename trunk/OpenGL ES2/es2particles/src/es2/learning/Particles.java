@@ -18,4 +18,5 @@ public class Particles extends Activity {
         view.setRenderer(new ParticleRenderer(view));
         setContentView(view);
     }
+   
 }
