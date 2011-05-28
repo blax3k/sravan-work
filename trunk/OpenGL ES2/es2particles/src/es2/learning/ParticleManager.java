@@ -51,7 +51,7 @@ public class ParticleManager {
 			fVertices[i*PARTICLE_SIZE + 8] = gen.nextFloat() - 0.5f;
 			
 			//life
-			fVertices[i*PARTICLE_SIZE + 9] = Utils.rnd(0.1f, 1f);
+			fVertices[i*PARTICLE_SIZE + 9] = Utils.rnd(0.5f, 1f);
 			//age
 			fVertices[i*PARTICLE_SIZE + 10] = Utils.rnd(0.01f, 0.1f);
 		}
@@ -63,11 +63,11 @@ public class ParticleManager {
 	public void update()
 	{
 		nTimeCounter+=0.01;
-		if (nTimeCounter >= 1.0)
-			nTimeCounter = 0;
+		/*if (nTimeCounter >= 1.0)
+			nTimeCounter = 0;*/
 	}
 	
-	public void draw(int iPosition, int iMove, int iTimes, int iColor)
+	public void draw(int iPosition, int iMove, int iTimes, int iColor, int iLife, int iAge)
 	{
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
 		
@@ -82,6 +82,14 @@ public class ParticleManager {
 		vertexBuffer.position(6);
 		GLES20.glVertexAttribPointer(iMove, 3, GLES20.GL_FLOAT, false, PARTICLE_SIZE * 4, vertexBuffer);
 		GLES20.glEnableVertexAttribArray(iMove);
+		
+		vertexBuffer.position(9);
+		GLES20.glVertexAttribPointer(iLife, 1, GLES20.GL_FLOAT, false, PARTICLE_SIZE * 4, vertexBuffer);
+		GLES20.glEnableVertexAttribArray(iLife);
+		
+		vertexBuffer.position(10);
+		GLES20.glVertexAttribPointer(iAge, 1, GLES20.GL_FLOAT, false, PARTICLE_SIZE * 4, vertexBuffer);
+		GLES20.glEnableVertexAttribArray(iAge);
 		
 		GLES20.glUniform1f(iTimes, nTimeCounter);
 		
