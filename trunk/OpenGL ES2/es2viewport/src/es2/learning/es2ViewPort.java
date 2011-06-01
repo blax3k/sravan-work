@@ -7,7 +7,7 @@ import android.view.Window;
 import android.view.WindowManager;
 
 public class es2ViewPort extends Activity {
-	GLSurfaceView  view;
+	ES2SurfaceView  view;
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -15,9 +15,8 @@ public class es2ViewPort extends Activity {
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         
-        view = new GLSurfaceView(this);
-        view.setEGLContextClientVersion(2);
-        view.setRenderer(new ViewPortRenderer());
+        view = new ES2SurfaceView(this);
+        
         setContentView(view);
     }
 }
