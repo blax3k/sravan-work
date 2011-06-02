@@ -8,6 +8,9 @@ import java.nio.ShortBuffer;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
@@ -78,8 +81,7 @@ public class ViewPortRenderer implements Renderer {
 			0,0, 0,1, 1,1, 1,0,
 			0,0, 0,1, 1,1, 1,0,
 			0,0, 0,1, 1,1, 1,0,
-			0,0, 0,1, 1,1, 1,0,
-			0,0, 0,1, 1,1, 1,0};
+			};
 			
 	
 	FloatBuffer cubeBuffer = null;
@@ -115,11 +117,12 @@ public class ViewPortRenderer implements Renderer {
 		GLES20.glVertexAttribPointer(iColor, 3, GLES20.GL_FLOAT, false, 0, colorBuffer);
 		GLES20.glEnableVertexAttribArray(iColor);
 		
+		texBuffer.position(0);
 		GLES20.glVertexAttribPointer(iTexCoords, 2, GLES20.GL_FLOAT, false, 0, texBuffer);
 		GLES20.glEnableVertexAttribArray(iTexCoords);
 		
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, iTexId);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, iTexId);
 		GLES20.glUniform1i(iTexLoc, 0);
 		
 		Matrix.setIdentityM(m_fIdentity, 0);
@@ -152,8 +155,8 @@ public class ViewPortRenderer implements Renderer {
 				"attribute vec4 a_color;" +
 				"uniform mat4 u_VPMatrix;" +
 				"varying vec4 v_color;" +
-				"attribute vec2 a_texCoords;" +
-				"varying vec2 v_texCoords;" +
+				"attribute vec3 a_texCoords;" +
+				"varying vec3 v_texCoords;" +
 				"void main()" +
 				"{" +
 					"v_color = a_color;" +
@@ -163,11 +166,11 @@ public class ViewPortRenderer implements Renderer {
 		
 		String strFShader = "precision mediump float;" +
 				"varying vec4 v_color;" +
-				"uniform sampler2D u_texId;" +
-				"varying vec2 v_texCoords;" +
+				"uniform samplerCube u_texId;" +
+				"varying vec3 v_texCoords;" +
 				"void main()" +
 				"{" +
-					"gl_FragColor = texture2D(u_texId,v_texCoords);" +
+					"gl_FragColor = textureCube(u_texId,v_texCoords);" +
 				"}";
 		iProgId = Utils.LoadProgram(strVShader, strFShader);
 		iColor = GLES20.glGetAttribLocation(iProgId, "a_color");
@@ -175,7 +178,77 @@ public class ViewPortRenderer implements Renderer {
 		iVPMatrix = GLES20.glGetUniformLocation(iProgId, "u_VPMatrix");
 		iTexLoc = GLES20.glGetUniformLocation(iProgId, "u_texId");
 		iTexCoords = GLES20.glGetAttribLocation(iProgId, "a_texCoords");
-		iTexId = Utils.LoadTexture(curView, R.drawable.texture);
+		iTexId = CreateCubeTexture();//Utils.LoadTexture(curView, R.drawable.texture);
 	}
-
+	
+	public int CreateCubeTexture()
+	{
+//		float[] faceColors = { 1,0,0, 0,1,0, 0,0,1, 1,0,1, 1,1,0, 0,1,1};
+		ByteBuffer fcbuffer = null;//ByteBuffer.allocateDirect(faceColors.length*4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+//		fcbuffer.put(faceColors).position(0);
+		
+		int[] cubeTex = new int[1];
+		
+		GLES20.glGenTextures(1, cubeTex, 0);
+//		int tex = cubeTex[0];
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP,cubeTex[0]);
+		
+		Bitmap img = null;
+		img = BitmapFactory.decodeResource(curView.getResources(), R.drawable.brick1);
+		fcbuffer = ByteBuffer.allocateDirect(img.getHeight() * img.getWidth() * 4);
+		
+		img.copyPixelsToBuffer(fcbuffer);
+		fcbuffer.position(0);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GLES20.GL_RGBA, 1, 1, 0,GLES20.GL_RGBA ,GLES20.GL_UNSIGNED_BYTE, fcbuffer);
+		fcbuffer = null;
+		img.recycle();
+		
+		img = BitmapFactory.decodeResource(curView.getResources(), R.drawable.brick2);
+		fcbuffer = ByteBuffer.allocateDirect(img.getHeight() * img.getWidth() * 4);
+		img.copyPixelsToBuffer(fcbuffer);
+		fcbuffer.position(0);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GLES20.GL_RGBA, 1, 1, 0,GLES20.GL_RGBA ,GLES20.GL_UNSIGNED_BYTE, fcbuffer);
+		fcbuffer = null;
+		img.recycle();
+		
+		img = BitmapFactory.decodeResource(curView.getResources(), R.drawable.brick3);
+		fcbuffer = ByteBuffer.allocateDirect(img.getHeight() * img.getWidth() * 4);
+		img.copyPixelsToBuffer(fcbuffer);
+		fcbuffer.position(0);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GLES20.GL_RGBA, 1, 1, 0,GLES20.GL_RGBA ,GLES20.GL_UNSIGNED_BYTE, fcbuffer);
+		fcbuffer = null;
+		img.recycle();
+		
+		
+		img = BitmapFactory.decodeResource(curView.getResources(), R.drawable.brick4);
+		fcbuffer = ByteBuffer.allocateDirect(img.getHeight() * img.getWidth() * 4);
+		img.copyPixelsToBuffer(fcbuffer);
+		fcbuffer.position(0);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GLES20.GL_RGBA, 1, 1, 0,GLES20.GL_RGBA ,GLES20.GL_UNSIGNED_BYTE, fcbuffer);
+		fcbuffer = null;
+		img.recycle();
+		
+		img = BitmapFactory.decodeResource(curView.getResources(), R.drawable.brick5);
+		fcbuffer = ByteBuffer.allocateDirect(img.getHeight() * img.getWidth() * 4);
+		img.copyPixelsToBuffer(fcbuffer);
+		fcbuffer.position(0);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GLES20.GL_RGBA, 1, 1, 0,GLES20.GL_RGBA ,GLES20.GL_UNSIGNED_BYTE, fcbuffer);
+		fcbuffer = null;
+		img.recycle();
+		
+		img = BitmapFactory.decodeResource(curView.getResources(), R.drawable.brick6);
+		fcbuffer = ByteBuffer.allocateDirect(img.getHeight() * img.getWidth() * 4);
+		img.copyPixelsToBuffer(fcbuffer);
+		fcbuffer.position(0);
+		GLES20.glTexImage2D(GLES20.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GLES20.GL_RGBA, 1, 1, 0,GLES20.GL_RGBA ,GLES20.GL_UNSIGNED_BYTE, fcbuffer);
+		fcbuffer = null;
+		img.recycle();
+		
+		GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_CUBE_MAP);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+		return cubeTex[0];
+	}
 }
