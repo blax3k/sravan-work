@@ -16,7 +16,7 @@ public class MultiTexture extends Activity {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         view = new GLSurfaceView(this);
         view.setEGLContextClientVersion(2);
-        view.setRenderer(new MultiTexRenderer());
+        view.setRenderer(new MultiTexRenderer(view));
         setContentView(view);
         
     }
