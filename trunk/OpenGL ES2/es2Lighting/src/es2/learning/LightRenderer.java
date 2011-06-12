@@ -64,34 +64,130 @@ public class LightRenderer implements Renderer {
 	FloatBuffer axisColorBuf;
 	
 	
-	/*float[] cube = {
-			2,2,2, -2,2,2, -2,-2,2, 2,-2,2, //0-1-2-3 front
-			2,2,2, 2,-2,2,  2,-2,-2, 2,2,-2,//0-3-4-5 right
-			2,-2,-2, -2,-2,-2, -2,2,-2, 2,2,-2,//4-7-6-5 back
-			-2,2,2, -2,2,-2, -2,-2,-2, -2,-2,2,//1-6-7-2 left
-			2,2,2, 2,2,-2, -2,2,-2, -2,2,2, //top
-			2,-2,2, -2,-2,2, -2,-2,-2, 2,-2,-2,//bottom
-		};
-		
-	float[] vnormals = {
-		0,0,1, 0,0,1, 0,0,1, 0,0,1,
-		1,0,0, 1,0,0, 1,0,0, 1,0,0,
-		0,0,-1, 0,0,-1, 0,0,-1, 0,0,-1,
-		-1,0,0, -1,0,0, -1,0,0, -1,0,0,
-		0,1,0, 0,1,0, 0,1,0, 0,1,0,
-		0,-1,0, 0,-1,0, 0,-1,0, 0,-1,0
+	float[] vertices = {
+	            // Front face
+	            -2.0f, -2.0f,  2.0f,
+	             2.0f, -2.0f,  2.0f,
+	             2.0f,  2.0f,  2.0f,
+	            -2.0f,  2.0f,  2.0f,
+	 
+	            // Back face
+	            -2.0f, -2.0f, -2.0f,
+	            -2.0f,  2.0f, -2.0f,
+	             2.0f,  2.0f, -2.0f,
+	             2.0f, -2.0f, -2.0f,
+	 
+	            // Top face
+	            -2.0f,  2.0f, -2.0f,
+	            -2.0f,  2.0f,  2.0f,
+	             2.0f,  2.0f,  2.0f,
+	             2.0f,  2.0f, -2.0f,
+	 
+	            // Bottom face
+	            -2.0f, -2.0f, -2.0f,
+	             2.0f, -2.0f, -2.0f,
+	             2.0f, -2.0f,  2.0f,
+	            -2.0f, -2.0f,  2.0f,
+	 
+	            // Right face
+	             2.0f, -2.0f, -2.0f,
+	             2.0f,  2.0f, -2.0f,
+	             2.0f,  2.0f,  2.0f,
+	             2.0f, -2.0f,  2.0f,
+	 
+	            // Left face
+	            -2.0f, -2.0f, -2.0f,
+	            -2.0f, -2.0f,  2.0f,
+	            -2.0f,  2.0f,  2.0f,
+	            -2.0f,  2.0f, -2.0f,
 	};
-	short[] indeces = {
-				0,1,2, 0,2,3,
-				4,5,6, 4,6,7,
-				8,9,10, 8,10,11,
-				12,13,14, 12,14,15,
-				16,17,18, 16,18,19,
-				20,21,22, 20,22,23,
-				
-				};
-		*/
-		float[] tex = {
+	
+	 float[] vertexNormals = {
+	                  // Front face
+	                   0.0f,  0.0f,  1.0f,
+	                   0.0f,  0.0f,  1.0f,
+	                   0.0f,  0.0f,  1.0f,
+	                   0.0f,  0.0f,  1.0f,
+	       
+	                  // Back face
+	                   0.0f,  0.0f, -1.0f,
+	                   0.0f,  0.0f, -1.0f,
+	                   0.0f,  0.0f, -1.0f,
+	                   0.0f,  0.0f, -1.0f,
+	       
+	                  // Top face
+	                   0.0f,  1.0f,  0.0f,
+	                   0.0f,  1.0f,  0.0f,
+	                   0.0f,  1.0f,  0.0f,
+	                   0.0f,  1.0f,  0.0f,
+	       
+	                  // Bottom face
+	                   0.0f, -1.0f,  0.0f,
+	                   0.0f, -1.0f,  0.0f,
+	                   0.0f, -1.0f,  0.0f,
+	                   0.0f, -1.0f,  0.0f,
+	       
+	                  // Right face
+	                   1.0f,  0.0f,  0.0f,
+	                   1.0f,  0.0f,  0.0f,
+	                   1.0f,  0.0f,  0.0f,
+	                   1.0f,  0.0f,  0.0f,
+	       
+	                  // Left face
+	                  -1.0f,  0.0f,  0.0f,
+	                  -1.0f,  0.0f,  0.0f,
+	                  -1.0f,  0.0f,  0.0f,
+	                  -1.0f,  0.0f,  0.0f
+};
+	 float[] textureCoords = {
+	                      // Front face
+	                      0.0f, 0.0f,
+	                      1.0f, 0.0f,
+	                      1.0f, 1.0f,
+	                      0.0f, 1.0f,
+	           
+	                      // Back face
+	                      1.0f, 0.0f,
+	                      1.0f, 1.0f,
+	                      0.0f, 1.0f,
+	                      0.0f, 0.0f,
+	           
+	                      // Top face
+	                      0.0f, 1.0f,
+	                      0.0f, 0.0f,
+	                      1.0f, 0.0f,
+	                      1.0f, 1.0f,
+	           
+	                      // Bottom face
+	                      1.0f, 1.0f,
+	                      0.0f, 1.0f,
+	                      0.0f, 0.0f,
+	                      1.0f, 0.0f,
+	           
+	                      // Right face
+	                      1.0f, 0.0f,
+	                      1.0f, 1.0f,
+	                      0.0f, 1.0f,
+	                      0.0f, 0.0f,
+	           
+	                      // Left face
+	                      0.0f, 0.0f,
+	                      1.0f, 0.0f,
+	                      1.0f, 1.0f,
+	                      0.0f, 1.0f
+	 };
+	 short[] cubeVertexIndices = {
+	                              0, 1, 2,      0, 2, 3,    // Front face
+	                              4, 5, 6,      4, 6, 7,    // Back face
+	                              8, 9, 10,     8, 10, 11,  // Top face
+	                              12, 13, 14,   12, 14, 15, // Bottom face
+	                              16, 17, 18,   16, 18, 19, // Right face
+	                              20, 21, 22,   20, 22, 23  // Left face
+	 						};
+	 
+	 
+	 
+		/*float[] tex = {
 				1,0, 0,0, 0,1, 1,1, 
 				0,0, 0,1, 1,1, 1,0,
 				1,1, 0,1, 0,0, 1,0,
@@ -130,7 +226,7 @@ public class LightRenderer implements Renderer {
 			           0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,     //  top		          
 			           0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0,     // bottom
 			           
-		 };	
+		 };	*/
 		FloatBuffer cubeBuffer = null;
 		FloatBuffer normalsBuffer = null;
 		ShortBuffer indexBuffer = null;
@@ -138,17 +234,17 @@ public class LightRenderer implements Renderer {
 	
 	public LightRenderer(ES2SurfaceView view) {
 		curView = view;
-		cubeBuffer = ByteBuffer.allocateDirect(cube.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		cubeBuffer.put(cube).position(0);
+		cubeBuffer = ByteBuffer.allocateDirect(vertices.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		cubeBuffer.put(vertices).position(0);
 		
-		normalsBuffer = ByteBuffer.allocateDirect(vnormals.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		normalsBuffer.put(vnormals).position(0);
+		normalsBuffer = ByteBuffer.allocateDirect(vertexNormals.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		normalsBuffer.put(vertexNormals).position(0);
 		
-		indexBuffer = ByteBuffer.allocateDirect(indeces.length * 4).order(ByteOrder.nativeOrder()).asShortBuffer();
-		indexBuffer.put(indeces).position(0);
+		indexBuffer = ByteBuffer.allocateDirect(cubeVertexIndices.length * 4).order(ByteOrder.nativeOrder()).asShortBuffer();
+		indexBuffer.put(cubeVertexIndices).position(0);
 		
-		texBuffer = ByteBuffer.allocateDirect(tex.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		texBuffer.put(tex).position(0);
+		texBuffer = ByteBuffer.allocateDirect(textureCoords.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		texBuffer.put(textureCoords).position(0);
 		
 		
 		fb = ByteBuffer.allocateDirect(lines.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
@@ -167,6 +263,7 @@ public class LightRenderer implements Renderer {
 		GLES20.glEnableVertexAttribArray(iPosition);
 		
 		texBuffer.position(0);
+//		GLES20.glUniform2fv(iTexCoords, 1, texBuffer);
 		GLES20.glVertexAttribPointer(iTexCoords, 2, GLES20.GL_FLOAT, false, 0, texBuffer);
 		GLES20.glEnableVertexAttribArray(iTexCoords);
 		
@@ -217,7 +314,35 @@ public class LightRenderer implements Renderer {
 		
 		Matrix.setLookAtM(m_fViewMatrix, 0, 0, 0, 5, 0, 0, 0, 0, 1, 0);
 		
-		String strVShader =
+		String strVShader = "attribute vec4 a_position;" +
+				"attribute vec3 a_normals;" +
+				"attribute vec2 a_texCoords;" +
+				"uniform mat4 u_ModelViewMatrix;" +
+				"uniform mat4 u_MVNormalsMatrix;" +
+				"varying vec3 u_Normals;" +
+				"varying vec2 v_texCoords;" +
+				"void main()" +
+				"{" +
+					"v_texCoords = a_texCoords;" +
+					"u_Normals = mat3(u_MVNormalsMatrix) * a_normals;" +
+					"gl_Position = u_ModelViewMatrix * a_position;" +
+				"}";
+		String strFShader = "precision mediump float;" +
+				"uniform vec3 u_LightDir;" +
+				"uniform vec3 u_LightColor;" +				
+				"uniform sampler2D u_texId;" +
+				"varying vec2 v_texCoords;" +
+				"varying vec3 u_Normals;" +
+				"void main()" +
+				"{" +
+					"vec3 LNorm = normalize(u_LightDir);" +
+					"vec3 normal = normalize(u_Normals);" +
+					"float intensity = max(dot(LNorm, normal),0.0);" +
+					"vec4 texColor = texture2D(u_texId, v_texCoords);" +
+					"vec3 calcColor = vec3(0.2,0.2,0.2) + u_LightColor * intensity;" +
+					"gl_FragColor = vec4(texColor.rgb * calcColor, texColor.a);" +
+				"}";
+		/*String strVShader =
 				"attribute vec4 a_position;" +
 				"attribute vec3 a_normals;" +
 				"uniform mat4 u_VPMatrix;" +
@@ -236,9 +361,9 @@ public class LightRenderer implements Renderer {
 					"vec3 normLightDir = normalize(u_LightDir);" +
 					"float dirLigthweight = max(dot(transNorms,normLightDir),0.0);" +
 					"v_calcColor = vec3(0.2,0.2,0.2)+u_LightColor * dirLigthweight;" +
-				"}";
+				"}";*/
 		
-		String strFShader = 
+		/*String strFShader = 
 				"precision mediump float;" +
 				"uniform sampler2D u_texId;" +
 				"varying vec2 v_texCoords;" +
@@ -247,16 +372,15 @@ public class LightRenderer implements Renderer {
 				"{" +
 					"vec4 texColor = texture2D(u_texId, v_texCoords);" +
 					"gl_FragColor = vec4(texColor.rgb*v_calcColor,texColor.a);" +
-				"}";
+				"}";*/
 		iProgId = Utils.LoadProgram(strVShader, strFShader);
 		
-		iLightColor = GLES20.glGetUniformLocation(iProgId, "u_LightColor");
-		iNormals = GLES20.glGetAttribLocation(iProgId, "a_normals");
-		iLightDirection = GLES20.glGetUniformLocation(iProgId, "u_LightDir");
-		iVNormMat = GLES20.glGetUniformLocation(iProgId, "u_VNormalMat");
-		
 		iPosition = GLES20.glGetAttribLocation(iProgId, "a_position");
-		iVPMatrix = GLES20.glGetUniformLocation(iProgId, "u_VPMatrix");
+		iNormals = GLES20.glGetAttribLocation(iProgId, "a_normals");
+		iVPMatrix = GLES20.glGetUniformLocation(iProgId, "u_ModelViewMatrix");
+		iVNormMat = GLES20.glGetUniformLocation(iProgId, "u_MVNormalsMatrix");
+		iLightColor = GLES20.glGetUniformLocation(iProgId, "u_LightColor");
+		iLightDirection = GLES20.glGetUniformLocation(iProgId, "u_LightDir");
 		iTexLoc = GLES20.glGetUniformLocation(iProgId, "u_texId");
 		iTexCoords = GLES20.glGetAttribLocation(iProgId, "a_texCoords");
 		iTexId = Utils.LoadTexture(curView, R.raw.crate);
