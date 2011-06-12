@@ -1,5 +1,9 @@
 package es2.learning;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+
 import javax.microedition.khronos.opengles.GL10;
 
 import android.graphics.Bitmap;
@@ -10,6 +14,7 @@ import android.opengl.GLUtils;
 import android.util.Log;
 
 public class Utils {
+	
 	public static int LoadTexture(GLSurfaceView view, int imgResID){
 		Log.d("Utils", "Loadtexture");
 		Bitmap img = null;
@@ -87,4 +92,6 @@ public class Utils {
 		 float fRandNum = (float)Math.random();
 		    return min + (max - min) * fRandNum;
 	}
+	
+	
 }
