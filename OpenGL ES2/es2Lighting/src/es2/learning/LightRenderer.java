@@ -37,7 +37,7 @@ public class LightRenderer implements Renderer {
 	float[] m_fIdentity = new float[16];
 	float[] m_fVPMatrix = new float[16];
 	
-	float[] m_fLightDir = {0f, 0f, -3f};//light direction
+	float[] m_fLightDir = {-3f, 2f, -3f};//light direction
 	float[] m_fNormalMat = new float[16];//transposed projection matrix
 	float[] m_fLightColor = {0f,0.2f,0.6f};//light color
 	
@@ -62,130 +62,7 @@ public class LightRenderer implements Renderer {
 			0,1,1, 0,1,1,			
 		};
 	FloatBuffer axisColorBuf;
-	/*
 	
-	float[] vertices = {
-	            // Front face
-	            -2.0f, -2.0f,  2.0f,
-	             2.0f, -2.0f,  2.0f,
-	             2.0f,  2.0f,  2.0f,
-	            -2.0f,  2.0f,  2.0f,
-	 
-	            // Back face
-	            -2.0f, -2.0f, -2.0f,
-	            -2.0f,  2.0f, -2.0f,
-	             2.0f,  2.0f, -2.0f,
-	             2.0f, -2.0f, -2.0f,
-	 
-	            // Top face
-	            -2.0f,  2.0f, -2.0f,
-	            -2.0f,  2.0f,  2.0f,
-	             2.0f,  2.0f,  2.0f,
-	             2.0f,  2.0f, -2.0f,
-	 
-	            // Bottom face
-	            -2.0f, -2.0f, -2.0f,
-	             2.0f, -2.0f, -2.0f,
-	             2.0f, -2.0f,  2.0f,
-	            -2.0f, -2.0f,  2.0f,
-	 
-	            // Right face
-	             2.0f, -2.0f, -2.0f,
-	             2.0f,  2.0f, -2.0f,
-	             2.0f,  2.0f,  2.0f,
-	             2.0f, -2.0f,  2.0f,
-	 
-	            // Left face
-	            -2.0f, -2.0f, -2.0f,
-	            -2.0f, -2.0f,  2.0f,
-	            -2.0f,  2.0f,  2.0f,
-	            -2.0f,  2.0f, -2.0f,
-	};
-	
-	 float[] vertexNormals = {
-	                  // Front face
-	                   0.0f,  0.0f,  1.0f,
-	                   0.0f,  0.0f,  1.0f,
-	                   0.0f,  0.0f,  1.0f,
-	                   0.0f,  0.0f,  1.0f,
-	       
-	                  // Back face
-	                   0.0f,  0.0f, -1.0f,
-	                   0.0f,  0.0f, -1.0f,
-	                   0.0f,  0.0f, -1.0f,
-	                   0.0f,  0.0f, -1.0f,
-	       
-	                  // Top face
-	                   0.0f,  1.0f,  0.0f,
-	                   0.0f,  1.0f,  0.0f,
-	                   0.0f,  1.0f,  0.0f,
-	                   0.0f,  1.0f,  0.0f,
-	       
-	                  // Bottom face
-	                   0.0f, -1.0f,  0.0f,
-	                   0.0f, -1.0f,  0.0f,
-	                   0.0f, -1.0f,  0.0f,
-	                   0.0f, -1.0f,  0.0f,
-	       
-	                  // Right face
-	                   1.0f,  0.0f,  0.0f,
-	                   1.0f,  0.0f,  0.0f,
-	                   1.0f,  0.0f,  0.0f,
-	                   1.0f,  0.0f,  0.0f,
-	       
-	                  // Left face
-	                  -1.0f,  0.0f,  0.0f,
-	                  -1.0f,  0.0f,  0.0f,
-	                  -1.0f,  0.0f,  0.0f,
-	                  -1.0f,  0.0f,  0.0f
-};
-	 float[] textureCoords = {
-	                      // Front face
-	                      0.0f, 0.0f,
-	                      1.0f, 0.0f,
-	                      1.0f, 1.0f,
-	                      0.0f, 1.0f,
-	           
-	                      // Back face
-	                      1.0f, 0.0f,
-	                      1.0f, 1.0f,
-	                      0.0f, 1.0f,
-	                      0.0f, 0.0f,
-	           
-	                      // Top face
-	                      0.0f, 1.0f,
-	                      0.0f, 0.0f,
-	                      1.0f, 0.0f,
-	                      1.0f, 1.0f,
-	           
-	                      // Bottom face
-	                      1.0f, 1.0f,
-	                      0.0f, 1.0f,
-	                      0.0f, 0.0f,
-	                      1.0f, 0.0f,
-	           
-	                      // Right face
-	                      1.0f, 0.0f,
-	                      1.0f, 1.0f,
-	                      0.0f, 1.0f,
-	                      0.0f, 0.0f,
-	           
-	                      // Left face
-	                      0.0f, 0.0f,
-	                      1.0f, 0.0f,
-	                      1.0f, 1.0f,
-	                      0.0f, 1.0f
-	 };
-	 short[] cubeVertexIndices = {
-	                              0, 1, 2,      0, 2, 3,    // Front face
-	                              4, 5, 6,      4, 6, 7,    // Back face
-	                              8, 9, 10,     8, 10, 11,  // Top face
-	                              12, 13, 14,   12, 14, 15, // Bottom face
-	                              16, 17, 18,   16, 18, 19, // Right face
-	                              20, 21, 22,   20, 22, 23  // Left face
-	 						};
-	 
-	 */
 	 
 		float[] textureCoords = {
 				1,0, 0,0, 0,1, 1,1, 
@@ -325,7 +202,7 @@ public class LightRenderer implements Renderer {
 				"{" +
 					"v_texCoords = a_texCoords;" +
 					"u_Normals = normalize(mat3(u_ModelViewMatrix) * a_normals);" + //works now, but can cause problem when zoom or scale
-//					"u_Normals = normalize(mat3(u_MVNormalsMatrix) * a_normals);" +
+//					"u_Normals = vec3(u_MVNormalsMatrix * vec4(a_normals,0.0));" +
 					"gl_Position = u_ModelViewMatrix * a_position;" +
 				"}";
 		String strFShader = "precision mediump float;" +
