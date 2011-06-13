@@ -62,7 +62,7 @@ public class LightRenderer implements Renderer {
 			0,1,1, 0,1,1,			
 		};
 	FloatBuffer axisColorBuf;
-	
+	/*
 	
 	float[] vertices = {
 	            // Front face
@@ -185,9 +185,9 @@ public class LightRenderer implements Renderer {
 	                              20, 21, 22,   20, 22, 23  // Left face
 	 						};
 	 
+	 */
 	 
-	 
-		/*float[] tex = {
+		float[] textureCoords = {
 				1,0, 0,0, 0,1, 1,1, 
 				0,0, 0,1, 1,1, 1,0,
 				1,1, 0,1, 0,0, 1,0,
@@ -196,7 +196,7 @@ public class LightRenderer implements Renderer {
 				0,0, 1,0, 1,1, 0,1,
 				
 				};
-	float[] cube = {
+	float[] vertices = {
 			2,2,2, -2,2,2, -2,-2,2, 2,-2,2, //0-1-2-3 front
 			2,2,2, 2,-2,2,  2,-2,-2, 2,2,-2,//0-3-4-5 right
 			2,-2,-2, -2,-2,-2, -2,2,-2, 2,2,-2,//4-7-6-5 back
@@ -207,7 +207,7 @@ public class LightRenderer implements Renderer {
 		
 		
 		
-		short[] indeces = {
+		short[] cubeVertexIndices = {
 				0,1,2, 0,2,3,
 				4,5,6, 4,6,7,
 				8,9,10, 8,10,11,
@@ -218,7 +218,7 @@ public class LightRenderer implements Renderer {
 				};
 		
 		
-		 float[] vnormals = {
+		 float[] vertexNormals = {
 			          0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,     //front
 			           1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,     // right
 			           0, 0,-1,   0, 0,-1,   0, 0,-1,   0, 0,-1,     //back
@@ -226,7 +226,7 @@ public class LightRenderer implements Renderer {
 			           0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,     //  top		          
 			           0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0,     // bottom
 			           
-		 };	*/
+		 };	
 		FloatBuffer cubeBuffer = null;
 		FloatBuffer normalsBuffer = null;
 		ShortBuffer indexBuffer = null;
@@ -293,7 +293,7 @@ public class LightRenderer implements Renderer {
 		
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, 36, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
 
-		DrawAxis();
+//		DrawAxis();
 	}
 
 	@Override
@@ -324,7 +324,8 @@ public class LightRenderer implements Renderer {
 				"void main()" +
 				"{" +
 					"v_texCoords = a_texCoords;" +
-					"u_Normals = mat3(u_MVNormalsMatrix) * a_normals;" +
+					"u_Normals = normalize(mat3(u_ModelViewMatrix) * a_normals);" + //works now, but can cause problem when zoom or scale
+//					"u_Normals = normalize(mat3(u_MVNormalsMatrix) * a_normals);" +
 					"gl_Position = u_ModelViewMatrix * a_position;" +
 				"}";
 		String strFShader = "precision mediump float;" +
@@ -385,7 +386,7 @@ public class LightRenderer implements Renderer {
 		iTexCoords = GLES20.glGetAttribLocation(iProgId, "a_texCoords");
 		iTexId = Utils.LoadTexture(curView, R.raw.crate);
 		
-		LoadAxisShaders();
+//		LoadAxisShaders();
 	}
 	
 	public void LoadAxisShaders()
