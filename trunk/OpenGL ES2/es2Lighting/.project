@@ -33,15 +33,9 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>common</name>
+			<name>es2common_src</name>
 			<type>2</type>
-			<locationURI>common</locationURI>
+			<locationURI>_android_es2common_2d5db02f/src</locationURI>
 		</link>
 	</linkedResources>
-	<variableList>
-		<variable>
-			<name>common</name>
-			<value>file:/J:/Android/workspace/es2common/src</value>
-		</variable>
-	</variableList>
 </projectDescription>
