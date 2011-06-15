@@ -9,6 +9,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import es2.common.Mat3;
+import es2.common.Utils;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
@@ -41,9 +42,9 @@ public class LightRenderer implements Renderer {
 	
 	Mat3 normalMat;
 	
-	float[] m_fLightDir = {0, 0, -1};//light direction
+	float[] m_fLightDir = {1, 1, 0};//light direction
 	float[] m_fNormalMat = new float[16];//transposed projection matrix
-	float[] m_fLightColor = {0f,0.2f,0.6f};//light color
+	float[] m_fLightColor = {0.8f,0.8f,0.6f};//light color
 	
 	ES2SurfaceView curView;
 	
