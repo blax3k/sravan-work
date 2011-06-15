@@ -6,7 +6,7 @@ package es2.common;
  *
  */
 public class Mat3 {
-	float[] values = null;
+	public float[] values = null;
 	
 	/**
 	 * default constructor, allocated array of size 9
@@ -23,6 +23,7 @@ public class Mat3 {
 	{
 		values = vals;
 	}
+	
 	/**
 	 * set matrix to identity
 	 */
