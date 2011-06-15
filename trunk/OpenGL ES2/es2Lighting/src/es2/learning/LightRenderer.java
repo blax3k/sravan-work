@@ -37,7 +37,7 @@ public class LightRenderer implements Renderer {
 	float[] m_fIdentity = new float[16];
 	float[] m_fVPMatrix = new float[16];
 	
-	float[] m_fLightDir = {-3f, 2f, -3f};//light direction
+	float[] m_fLightDir = {0, 0, -1};//light direction
 	float[] m_fNormalMat = new float[16];//transposed projection matrix
 	float[] m_fLightColor = {0f,0.2f,0.6f};//light color
 	
@@ -65,43 +65,66 @@ public class LightRenderer implements Renderer {
 	
 	 
 		float[] textureCoords = {
-				1,0, 0,0, 0,1, 1,1, 
+/*				1,0, 0,0, 0,1, 1,1, 
 				0,0, 0,1, 1,1, 1,0,
 				1,1, 0,1, 0,0, 1,0,
 				0,0, 1,0, 1,1, 0,1,
 				0,1, 0,0, 1,0, 1,1,
-				0,0, 1,0, 1,1, 0,1,
-				
+				0,0, 1,0, 1,1, 0,1,*/
+				1, 1,   0, 1,   0, 0,   1, 0,    // v0-v1-v2-v3 front
+		           0, 1,   0, 0,   1, 0,   1, 1,    // v0-v3-v4-v5 right
+		           1, 0,   1, 1,   0, 1,   0, 0,    // v0-v5-v6-v1 top
+		           1, 1,   0, 1,   0, 0,   1, 0,    // v1-v6-v7-v2 left
+		           0, 0,   1, 0,   1, 1,   0, 1,    // v7-v4-v3-v2 bottom
+		           0, 0,   1, 0,   1, 1,   0, 1 
 				};
 	float[] vertices = {
-			2,2,2, -2,2,2, -2,-2,2, 2,-2,2, //0-1-2-3 front
+			 2, 2, 2,  -2, 2, 2,  -2,-2, 2,   2,-2, 2,    // v0-v1-v2-v3 front
+	           2, 2, 2,   2,-2, 2,   2,-2,-2,   2, 2,-2,    // v0-v3-v4-v5 right
+	           2, 2, 2,   2, 2,-2,  -2, 2,-2,  -2, 2, 2,    // v0-v5-v6-v1 top
+	          -2, 2, 2,  -2, 2,-2,  -2,-2,-2,  -2,-2, 2,    // v1-v6-v7-v2 left
+	          -2,-2,-2,   2,-2,-2,   2,-2, 2,  -2,-2, 2,    // v7-v4-v3-v2 bottom
+	           2,-2,-2,  -2,-2,-2,  -2, 2,-2,   2, 2,-2,
+			/*2,2,2, -2,2,2, -2,-2,2, 2,-2,2, //0-1-2-3 front
 			2,2,2, 2,-2,2,  2,-2,-2, 2,2,-2,//0-3-4-5 right
 			2,-2,-2, -2,-2,-2, -2,2,-2, 2,2,-2,//4-7-6-5 back
 			-2,2,2, -2,2,-2, -2,-2,-2, -2,-2,2,//1-6-7-2 left
 			2,2,2, 2,2,-2, -2,2,-2, -2,2,2, //top
-			2,-2,2, -2,-2,2, -2,-2,-2, 2,-2,-2,//bottom
+			2,-2,2, -2,-2,2, -2,-2,-2, 2,-2,-2,//bottom*/
 		};
 		
 		
 		
 		short[] cubeVertexIndices = {
-				0,1,2, 0,2,3,
+				/*0,1,2, 0,2,3,
 				4,5,6, 4,6,7,
 				8,9,10, 8,10,11,
 				12,13,14, 12,14,15,
 				16,17,18, 16,18,19,
-				20,21,22, 20,22,23,
+				20,21,22, 20,22,23,*/
+				 0, 1, 2,   0, 2, 3,    // front
+		           4, 5, 6,   4, 6, 7,    // right
+		           8, 9,10,   8,10,11,    // top
+		          12,13,14,  12,14,15,    // left
+		          16,17,18,  16,18,19,    // bottom
+		          20,21,22,  20,22,23 
 				
 				};
 		
 		
 		 float[] vertexNormals = {
-			          0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,     //front
+				 0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,     // v0-v1-v2-v3 front
+		           1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,     // v0-v3-v4-v5 right
+		           0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,     // v0-v5-v6-v1 top
+		          -1, 0, 0,  -1, 0, 0,  -1, 0, 0,  -1, 0, 0,     // v1-v6-v7-v2 left
+		           0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0,     // v7-v4-v3-v2 bottom
+		           0, 0,-1,   0, 0,-1,   0, 0,-1,   0, 0,-1 
+			         /* 0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,     //front
 			           1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,     // right
 			           0, 0,-1,   0, 0,-1,   0, 0,-1,   0, 0,-1,     //back
 			           -1, 0, 0,  -1, 0, 0,  -1, 0, 0,  -1, 0, 0,     // left
 			           0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,     //  top		          
-			           0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0,     // bottom
+			           0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0,     // bottom*/
 			           
 		 };	
 		FloatBuffer cubeBuffer = null;
@@ -159,6 +182,8 @@ public class LightRenderer implements Renderer {
 		Matrix.setIdentityM(m_fIdentity, 0);
 		Matrix.rotateM(m_fIdentity, 0, -xAngle, 0, 1, 0);
 		Matrix.rotateM(m_fIdentity, 0, -yAngle, 1, 0, 0);
+		
+		
 		Matrix.multiplyMM(m_fVPMatrix, 0, m_fViewMatrix, 0, m_fIdentity, 0);
 		Matrix.multiplyMM(m_fVPMatrix, 0, m_fProjMatrix, 0, m_fVPMatrix, 0);
 		
@@ -166,6 +191,7 @@ public class LightRenderer implements Renderer {
 		Matrix.transposeM(m_fNormalMat, 0, m_fNormalMat, 0);
 		GLES20.glUniformMatrix4fv(iVNormMat, 1, false, m_fNormalMat, 0);
 
+		
 		GLES20.glUniformMatrix4fv(iVPMatrix, 1, false, m_fVPMatrix, 0);
 		
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, 36, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
@@ -196,13 +222,13 @@ public class LightRenderer implements Renderer {
 				"attribute vec2 a_texCoords;" +
 				"uniform mat4 u_ModelViewMatrix;" +
 				"uniform mat4 u_MVNormalsMatrix;" +
-				"varying vec3 u_Normals;" +
+				"varying vec4 u_Normals;" +
 				"varying vec2 v_texCoords;" +
 				"void main()" +
 				"{" +
 					"v_texCoords = a_texCoords;" +
-					"u_Normals = normalize(mat3(u_ModelViewMatrix) * a_normals);" + //works now, but can cause problem when zoom or scale
-//					"u_Normals = vec3(u_MVNormalsMatrix * vec4(a_normals,0.0));" +
+//					"u_Normals = normalize(mat3(u_ModelViewMatrix) * a_normals);" + //works now, but can cause problem when zoom or scale
+					"u_Normals = u_MVNormalsMatrix * vec4(a_normals,0.0);" +
 					"gl_Position = u_ModelViewMatrix * a_position;" +
 				"}";
 		String strFShader = "precision mediump float;" +
@@ -210,15 +236,15 @@ public class LightRenderer implements Renderer {
 				"uniform vec3 u_LightColor;" +				
 				"uniform sampler2D u_texId;" +
 				"varying vec2 v_texCoords;" +
-				"varying vec3 u_Normals;" +
+				"varying vec4 u_Normals;" +
 				"void main()" +
 				"{" +
 					"vec3 LNorm = normalize(u_LightDir);" +
-					"vec3 normal = normalize(u_Normals);" +
+					"vec3 normal = normalize(u_Normals.xyz);" +
 					"float intensity = max(dot(LNorm, normal),0.0);" +
 					"vec4 texColor = texture2D(u_texId, v_texCoords);" +
 					"vec3 calcColor = vec3(0.2,0.2,0.2) + u_LightColor * intensity;" +
-					"gl_FragColor = vec4(texColor.rgb * calcColor, texColor.a);" +
+					"gl_FragColor = vec4(texColor.rgb * intensity, texColor.a);" +
 				"}";
 		/*String strVShader =
 				"attribute vec4 a_position;" +
