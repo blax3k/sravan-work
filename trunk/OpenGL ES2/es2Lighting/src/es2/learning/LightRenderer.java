@@ -43,9 +43,9 @@ public class LightRenderer implements Renderer {
 	
 	Mat3 normalMat;
 	
-	float[] m_fLightDir = {1, 1, 0};//light direction
+	float[] m_fLightDir = {0, 0, -2};//light direction
 	float[] m_fNormalMat = new float[16];//transposed projection matrix
-	float[] m_fLightColor = {0.8f,0.8f,0.8f};//light color
+	float[] m_fLightColor = {0.8f,0.6f,0.4f};//light color
 	
 	ES2SurfaceView curView;
 	
@@ -69,74 +69,23 @@ public class LightRenderer implements Renderer {
 		};
 	FloatBuffer axisColorBuf;
 	
-	 
-		float[] textureCoords = {
-				1, 1,   0, 1,   0, 0,   1, 0,    // v0-v1-v2-v3 front
-		           0, 1,   0, 0,   1, 0,   1, 1,    // v0-v3-v4-v5 right
-		           1, 0,   1, 1,   0, 1,   0, 0,    // v0-v5-v6-v1 top
-		           1, 1,   0, 1,   0, 0,   1, 0,    // v1-v6-v7-v2 left
-		           0, 0,   1, 0,   1, 1,   0, 1,    // v7-v4-v3-v2 bottom
-		           0, 0,   1, 0,   1, 1,   0, 1 
-				};
-	float[] vertices = {
-			 2, 2, 2,  -2, 2, 2,  -2,-2, 2,   2,-2, 2,    // v0-v1-v2-v3 front
-	           2, 2, 2,   2,-2, 2,   2,-2,-2,   2, 2,-2,    // v0-v3-v4-v5 right
-	           2, 2, 2,   2, 2,-2,  -2, 2,-2,  -2, 2, 2,    // v0-v5-v6-v1 top
-	          -2, 2, 2,  -2, 2,-2,  -2,-2,-2,  -2,-2, 2,    // v1-v6-v7-v2 left
-	          -2,-2,-2,   2,-2,-2,   2,-2, 2,  -2,-2, 2,    // v7-v4-v3-v2 bottom
-	           2,-2,-2,  -2,-2,-2,  -2, 2,-2,   2, 2,-2,
-		};
-		
-		
-		
-		short[] cubeVertexIndices = {
-				 0, 1, 2,   0, 2, 3,    // front
-		           4, 5, 6,   4, 6, 7,    // right
-		           8, 9,10,   8,10,11,    // top
-		          12,13,14,  12,14,15,    // left
-		          16,17,18,  16,18,19,    // bottom
-		          20,21,22,  20,22,23 
-				
-				};
-		
-		
-		 float[] vertexNormals = {
-				 0, 0, 1,   0, 0, 1,   0, 0, 1,   0, 0, 1,     // v0-v1-v2-v3 front
-		           1, 0, 0,   1, 0, 0,   1, 0, 0,   1, 0, 0,     // v0-v3-v4-v5 right
-		           0, 1, 0,   0, 1, 0,   0, 1, 0,   0, 1, 0,     // v0-v5-v6-v1 top
-		          -1, 0, 0,  -1, 0, 0,  -1, 0, 0,  -1, 0, 0,     // v1-v6-v7-v2 left
-		           0,-1, 0,   0,-1, 0,   0,-1, 0,   0,-1, 0,     // v7-v4-v3-v2 bottom
-		           0, 0,-1,   0, 0,-1,   0, 0,-1,   0, 0,-1 
-			           
-		 };	
-		FloatBuffer cubeBuffer = null;
-		FloatBuffer normalsBuffer = null;
-		ShortBuffer indexBuffer = null;
-		FloatBuffer texBuffer = null;
-	
-		Mesh sphere;
+	FloatBuffer cubeBuffer = null;
+	FloatBuffer normalsBuffer = null;
+	ShortBuffer indexBuffer = null;
+	FloatBuffer texBuffer = null;
+
+	Mesh sphere;
 		
 	public LightRenderer(ES2SurfaceView view) {
 		sphere = new Mesh();
-		sphere.Sphere(4, 10);
+//		sphere.Sphere(4, 30);
+		sphere.Cube(4);
 		curView = view;
 		normalMat = new Mat3();
 		cubeBuffer = sphere.getVertexBuffer();
 		normalsBuffer = sphere.getNormalsBuffer();
 		indexBuffer = sphere.getIndecesBuffer();
 		texBuffer = sphere.getTextureBuffer();
-		/*cubeBuffer = ByteBuffer.allocateDirect(vertices.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		cubeBuffer.put(vertices).position(0);
-		
-		normalsBuffer = ByteBuffer.allocateDirect(vertexNormals.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		normalsBuffer.put(vertexNormals).position(0);
-		
-		indexBuffer = ByteBuffer.allocateDirect(cubeVertexIndices.length * 4).order(ByteOrder.nativeOrder()).asShortBuffer();
-		indexBuffer.put(cubeVertexIndices).position(0);
-		
-		texBuffer = ByteBuffer.allocateDirect(textureCoords.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		texBuffer.put(textureCoords).position(0);
-		*/
 		
 		fb = ByteBuffer.allocateDirect(lines.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		fb.put(lines).position(0);
@@ -174,7 +123,6 @@ public class LightRenderer implements Renderer {
 		Matrix.rotateM(m_fIdentity, 0, -xAngle, 0, 1, 0);
 		Matrix.rotateM(m_fIdentity, 0, -yAngle, 1, 0, 0);
 		
-		
 		Matrix.multiplyMM(m_fVPMatrix, 0, m_fViewMatrix, 0, m_fIdentity, 0);
 		Matrix.multiplyMM(m_fVPMatrix, 0, m_fProjMatrix, 0, m_fVPMatrix, 0);
 		
@@ -208,36 +156,6 @@ public class LightRenderer implements Renderer {
 		
 		Matrix.setLookAtM(m_fViewMatrix, 0, 0, 0, 5, 0, 0, 0, 0, 1, 0);
 		
-		/*String strVShader = "attribute vec4 a_position;" +
-				"attribute vec3 a_normals;" +
-				"attribute vec2 a_texCoords;" +
-				"uniform mat4 u_ModelViewMatrix;" +
-				"uniform mat3 u_NormalsMatrix;" +
-				"uniform vec3 u_LightDir;" +
-				"uniform vec3 u_LightColor;" +
-				"varying vec3 v_color;" +
-				"varying vec2 v_texCoords;" +
-				"void main()" +
-				"{" +
-					"v_texCoords = a_texCoords;" +
-					"gl_Position = u_ModelViewMatrix * a_position;" +
-					"vec3 VNorm = normalize(u_NormalsMatrix * a_normals);" +
-					"vec3 LNorm = normalize(u_LightDir);" +
-					"float intensity = max(dot(LNorm,VNorm),0.0);" +
-					"v_color = vec3(0.2,0.2,0.2) + (u_LightColor * intensity);" +
-				"}";
-		
-		String strFShader = "precision mediump float;" +
-				"uniform sampler2D u_texId;" +
-				"varying vec2 v_texCoords;" +
-				"varying vec3 v_color;" +
-				"void main()" +
-				"{" +
-					"vec4 texColor = texture2D(u_texId, v_texCoords);" +
-					"gl_FragColor = vec4(texColor.rgb*v_color, texColor.a);" +
-//					"gl_FragColor = vec4(1.0,0.0,0.0,1.0);"+
-				"}";*/
-		
 		String strVShader = "attribute vec4 a_position;" +
 				"attribute vec3 a_normals;" +
 				"attribute vec2 a_texCoords;" +
@@ -248,7 +166,6 @@ public class LightRenderer implements Renderer {
 				"void main()" +
 				"{" +
 					"v_texCoords = a_texCoords;" +
-//					"u_Normals = normalize(mat3(u_ModelViewMatrix) * a_normals);" + //works now, but can cause problem when zoom or scale
 					"u_Normals = u_MVNormalsMatrix * a_normals;" +
 					"gl_Position = u_ModelViewMatrix * a_position;" +
 				"}";
