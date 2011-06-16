@@ -9,6 +9,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
 import es2.common.Mat3;
+import es2.common.Mesh;
 import es2.common.Utils;
 
 import android.opengl.GLES20;
@@ -44,7 +45,7 @@ public class LightRenderer implements Renderer {
 	
 	float[] m_fLightDir = {1, 1, 0};//light direction
 	float[] m_fNormalMat = new float[16];//transposed projection matrix
-	float[] m_fLightColor = {0.8f,0.8f,0.6f};//light color
+	float[] m_fLightColor = {0.8f,0.8f,0.8f};//light color
 	
 	ES2SurfaceView curView;
 	
@@ -113,10 +114,18 @@ public class LightRenderer implements Renderer {
 		ShortBuffer indexBuffer = null;
 		FloatBuffer texBuffer = null;
 	
+		Mesh sphere;
+		
 	public LightRenderer(ES2SurfaceView view) {
+		sphere = new Mesh();
+		sphere.Sphere(4, 10);
 		curView = view;
 		normalMat = new Mat3();
-		cubeBuffer = ByteBuffer.allocateDirect(vertices.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		cubeBuffer = sphere.getVertexBuffer();
+		normalsBuffer = sphere.getNormalsBuffer();
+		indexBuffer = sphere.getIndecesBuffer();
+		texBuffer = sphere.getTextureBuffer();
+		/*cubeBuffer = ByteBuffer.allocateDirect(vertices.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		cubeBuffer.put(vertices).position(0);
 		
 		normalsBuffer = ByteBuffer.allocateDirect(vertexNormals.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
@@ -127,7 +136,7 @@ public class LightRenderer implements Renderer {
 		
 		texBuffer = ByteBuffer.allocateDirect(textureCoords.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		texBuffer.put(textureCoords).position(0);
-		
+		*/
 		
 		fb = ByteBuffer.allocateDirect(lines.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		fb.put(lines).position(0);
@@ -140,13 +149,13 @@ public class LightRenderer implements Renderer {
 	public void onDrawFrame(GL10 gl) {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 		GLES20.glUseProgram(iProgId);
+		
 		cubeBuffer.position(0);
 		GLES20.glVertexAttribPointer(iPosition, 3, GLES20.GL_FLOAT, false, 0, cubeBuffer);
 		GLES20.glEnableVertexAttribArray(iPosition);
 		
 		texBuffer.position(0);
-//		GLES20.glUniform2fv(iTexCoords, 1, texBuffer);
-		GLES20.glVertexAttribPointer(iTexCoords, 2, GLES20.GL_FLOAT, false, 0, texBuffer);
+		GLES20.glVertexAttribPointer(iTexCoords, 2, GLES20.GL_FLOAT, false, 0,texBuffer);
 		GLES20.glEnableVertexAttribArray(iTexCoords);
 		
 		normalsBuffer.position(0);
@@ -176,7 +185,7 @@ public class LightRenderer implements Renderer {
 		
 		GLES20.glUniformMatrix4fv(iVPMatrix, 1, false, m_fVPMatrix, 0);
 		
-		GLES20.glDrawElements(GLES20.GL_TRIANGLES, 36, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
+		GLES20.glDrawElements(GLES20.GL_TRIANGLES, sphere.m_nIndeces, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
 
 	}
 
@@ -189,6 +198,7 @@ public class LightRenderer implements Renderer {
 
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+		
 		GLES20.glClearColor(0, 0, 0, 1);
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
 		GLES20.glDepthFunc(GLES20.GL_LEQUAL);
@@ -197,6 +207,36 @@ public class LightRenderer implements Renderer {
 		GLES20.glCullFace(GLES20.GL_BACK);
 		
 		Matrix.setLookAtM(m_fViewMatrix, 0, 0, 0, 5, 0, 0, 0, 0, 1, 0);
+		
+		/*String strVShader = "attribute vec4 a_position;" +
+				"attribute vec3 a_normals;" +
+				"attribute vec2 a_texCoords;" +
+				"uniform mat4 u_ModelViewMatrix;" +
+				"uniform mat3 u_NormalsMatrix;" +
+				"uniform vec3 u_LightDir;" +
+				"uniform vec3 u_LightColor;" +
+				"varying vec3 v_color;" +
+				"varying vec2 v_texCoords;" +
+				"void main()" +
+				"{" +
+					"v_texCoords = a_texCoords;" +
+					"gl_Position = u_ModelViewMatrix * a_position;" +
+					"vec3 VNorm = normalize(u_NormalsMatrix * a_normals);" +
+					"vec3 LNorm = normalize(u_LightDir);" +
+					"float intensity = max(dot(LNorm,VNorm),0.0);" +
+					"v_color = vec3(0.2,0.2,0.2) + (u_LightColor * intensity);" +
+				"}";
+		
+		String strFShader = "precision mediump float;" +
+				"uniform sampler2D u_texId;" +
+				"varying vec2 v_texCoords;" +
+				"varying vec3 v_color;" +
+				"void main()" +
+				"{" +
+					"vec4 texColor = texture2D(u_texId, v_texCoords);" +
+					"gl_FragColor = vec4(texColor.rgb*v_color, texColor.a);" +
+//					"gl_FragColor = vec4(1.0,0.0,0.0,1.0);"+
+				"}";*/
 		
 		String strVShader = "attribute vec4 a_position;" +
 				"attribute vec3 a_normals;" +
