@@ -43,7 +43,7 @@ public class LightRenderer implements Renderer {
 	
 	Mat3 normalMat;
 	
-	float[] m_fLightDir = {0, 0, -2};//light direction
+	float[] m_fLightDir = {-2, 0, -2};//light direction
 	float[] m_fNormalMat = new float[16];//transposed projection matrix
 	float[] m_fLightColor = {0.8f,0.6f,0.4f};//light color
 	
@@ -78,8 +78,8 @@ public class LightRenderer implements Renderer {
 		
 	public LightRenderer(ES2SurfaceView view) {
 		sphere = new Mesh();
-//		sphere.Sphere(4, 30);
-		sphere.Cube(4);
+		sphere.Sphere(4, 20);
+//		sphere.Cube(4);
 		curView = view;
 		normalMat = new Mat3();
 		cubeBuffer = sphere.getVertexBuffer();
@@ -141,7 +141,8 @@ public class LightRenderer implements Renderer {
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		GLES20.glViewport(0, 0, width, height);
 //		Matrix.frustumM(m_fProjMatrix, 0, -4, 4, -4, 4, 1, 20);
-		Matrix.orthoM(m_fProjMatrix, 0, -10, 10, -10, 10, 1, 20);
+		float ratio = (float)width/(float)height;
+		Matrix.orthoM(m_fProjMatrix, 0, -10f*ratio, 10f*ratio, -10, 10, 1, 20);
 	}
 
 	@Override
@@ -194,7 +195,7 @@ public class LightRenderer implements Renderer {
 		iLightDirection = GLES20.glGetUniformLocation(iProgId, "u_LightDir");
 		iTexLoc = GLES20.glGetUniformLocation(iProgId, "u_texId");
 		iTexCoords = GLES20.glGetAttribLocation(iProgId, "a_texCoords");
-		iTexId = Utils.LoadTexture(curView, R.raw.crate);
+		iTexId = Utils.LoadTexture(curView, R.raw.wlt01);
 		
 //		LoadAxisShaders();
 	}
