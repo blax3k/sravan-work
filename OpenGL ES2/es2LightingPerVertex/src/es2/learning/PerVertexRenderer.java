@@ -36,7 +36,7 @@ public class PerVertexRenderer implements Renderer {
 	
 	Mat3 normalMat;
 	
-	float[] m_fLightDir = {-1, 1, 0};//light direction
+	float[] m_fLightDir = {0, 0, -5};//light direction
 	float[] m_fNormalMat = new float[16];//transposed projection matrix
 	float[] m_fLightColor = {0.8f,0.6f,0.4f};//light color
 	
@@ -51,7 +51,7 @@ public class PerVertexRenderer implements Renderer {
 	
 	public PerVertexRenderer(ES2SurfaceView es2SurfaceView) {
 		sphere = new Mesh();
-		sphere.Sphere(4, 20);
+		sphere.Sphere(4, 10);
 //		sphere.Cube(4);
 		curView = es2SurfaceView;
 		normalMat = new Mat3();
@@ -155,9 +155,10 @@ public class PerVertexRenderer implements Renderer {
 				"{" +
 					"gl_Position = u_ModelViewMatrix * a_position;" +
 					"v_texCoords = a_texCoords;" +
-					"vec3 normal = u_NormalsMatrix * a_normals;" +
-					"vec3 halfVector = normalize(gl_Position.xyz + u_LightPosition);" +
-					"float lightWeight = max(dot(halfVector,normal),0.0);" +
+					"vec3 normal = normalize(u_NormalsMatrix * a_normals);" +
+//					"vec3 halfVector = normalize(gl_Position.xyz + u_LightPosition);" +
+					"vec3 lightNorm = normalize(u_LightPosition);" +
+					"float lightWeight = max(dot(normal,lightNorm),0.0);" +
 					"v_colorWeight = vec3(0.2,0.2,0.2) + (lightWeight * u_LightColor);" +
 				"}";
 		String strFShader = 
