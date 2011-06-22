@@ -43,7 +43,7 @@ public class LightRenderer implements Renderer {
 	
 	Mat3 normalMat;
 	
-	float[] m_fLightDir = {-2, 0, -2};//light direction
+	float[] m_fLightDir = {0, 0, -5};//light direction
 	float[] m_fNormalMat = new float[16];//transposed projection matrix
 	float[] m_fLightColor = {0.8f,0.6f,0.4f};//light color
 	
@@ -78,7 +78,7 @@ public class LightRenderer implements Renderer {
 		
 	public LightRenderer(ES2SurfaceView view) {
 		sphere = new Mesh();
-		sphere.Sphere(4, 20);
+		sphere.Sphere(4, 10);
 //		sphere.Cube(4);
 		curView = view;
 		normalMat = new Mat3();
