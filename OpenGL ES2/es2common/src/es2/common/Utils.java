@@ -1,11 +1,14 @@
 package es2.common;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import javax.microedition.khronos.opengles.GL10;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
@@ -93,5 +96,42 @@ public class Utils {
 		    return min + (max - min) * fRandNum;
 	}
 	
-	
+	public static int LoadProgram(Context ctx , int iVertShaderId, int iFragShaderId)
+	{
+		
+		InputStream is = ctx.getResources().openRawResource(iVertShaderId);
+		BufferedReader br = new BufferedReader(new InputStreamReader(is));
+		
+		String strVShader = "";
+		
+		try {
+			String line = br.readLine();
+			while (line!=null)
+			{
+				strVShader += line;
+				line = br.readLine();
+			}
+		} catch (IOException e) {
+			strVShader = "";
+			e.printStackTrace();
+		}
+		
+		is = ctx.getResources().openRawResource(iFragShaderId);
+		br = new BufferedReader(new InputStreamReader(is));
+		String strFShader = "";
+		
+		try {
+			String line = br.readLine();
+			while (line!=null)
+			{
+				strFShader += line;
+				line = br.readLine();
+			}
+		} catch (IOException e) {
+			strFShader = "";
+			e.printStackTrace();
+		}
+		
+		return LoadProgram(strVShader, strFShader);
+	}
 }
