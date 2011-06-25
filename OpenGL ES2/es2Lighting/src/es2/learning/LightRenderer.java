@@ -23,6 +23,8 @@ public class LightRenderer implements Renderer {
 	int iAxisColor;
 	
 	int iProgId;
+	int iProgIdPP;
+	int iProgIdPV;
 	int iPosition;
 	int iLightColor;
 	int iLightDirection;
@@ -157,7 +159,7 @@ public class LightRenderer implements Renderer {
 		
 		Matrix.setLookAtM(m_fViewMatrix, 0, 0, 0, 5, 0, 0, 0, 0, 1, 0);
 		
-		String strVShader = "attribute vec4 a_position;" +
+		String strVShaderPP = "attribute vec4 a_position;" +
 				"attribute vec3 a_normals;" +
 				"attribute vec2 a_texCoords;" +
 				"uniform mat4 u_ModelViewMatrix;" +
@@ -170,7 +172,7 @@ public class LightRenderer implements Renderer {
 					"u_Normals = u_MVNormalsMatrix * a_normals;" +
 					"gl_Position = u_ModelViewMatrix * a_position;" +
 				"}";
-		String strFShader = "precision mediump float;" +
+		String strFShaderPP = "precision mediump float;" +
 				"uniform vec3 u_LightDir;" +
 				"uniform vec3 u_LightColor;" +				
 				"uniform sampler2D u_texId;" +
@@ -185,7 +187,41 @@ public class LightRenderer implements Renderer {
 					"vec3 calcColor = vec3(0.2,0.2,0.2) + u_LightColor * intensity;" +
 					"gl_FragColor = vec4(texColor.rgb * calcColor, texColor.a);" +
 				"}";
-		iProgId = Utils.LoadProgram(strVShader, strFShader);
+		
+		String strVShaderPV = 
+			"attribute vec4 a_position;" +
+			"attribute vec3 a_normals;" +
+			"attribute vec2 a_texCoords;" +
+			"uniform mat4 u_ModelViewMatrix;" +
+			"uniform mat3 u_MVNormalsMatrix;" +
+			"uniform vec3 u_LightDir;" +
+			"uniform vec3 u_LightColor;" +
+			"varying vec3 v_colorWeight;" +
+			"varying vec2 v_texCoords;" +
+			"void main()" +
+			"{" +
+				"gl_Position = u_ModelViewMatrix * a_position;" +
+				"v_texCoords = a_texCoords;" +
+				"vec3 normal = normalize(u_MVNormalsMatrix * a_normals);" +
+				"vec3 lightNorm = normalize(u_LightDir);" +
+				"float lightWeight = max(dot(normal,lightNorm),0.0);" +
+				"v_colorWeight = vec3(0.2,0.2,0.2) + (lightWeight * u_LightColor);" +
+			"}";
+	String strFShaderPV = 
+			"precision mediump float;" +
+			"varying vec3 v_colorWeight;" +
+			"varying vec2 v_texCoords;" +
+			"uniform sampler2D u_texId;" +
+			"void main()" +
+			"{" +
+				"vec4 texColor = texture2D(u_texId, v_texCoords);" +
+				"gl_FragColor = vec4(texColor.rgb * v_colorWeight, texColor.a);" +
+			"}";
+		
+		iProgIdPP = Utils.LoadProgram(strVShaderPP, strFShaderPP);
+		iProgIdPV = Utils.LoadProgram(strVShaderPV, strFShaderPV);
+		
+		iProgId = iProgIdPV;
 		
 		iPosition = GLES20.glGetAttribLocation(iProgId, "a_position");
 		iNormals = GLES20.glGetAttribLocation(iProgId, "a_normals");
@@ -237,5 +273,11 @@ public class LightRenderer implements Renderer {
 		GLES20.glUseProgram(0);
 		
 	}
-	
+	public void LoadProgram(int id)
+	{
+		if (id == 0)
+			iProgId = iProgIdPV;
+		else 
+			iProgId = iProgIdPP;
+	}
 }
