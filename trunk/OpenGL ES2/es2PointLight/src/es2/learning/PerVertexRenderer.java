@@ -120,7 +120,7 @@ public class PerVertexRenderer implements Renderer {
 		
 		Matrix.setLookAtM(m_fViewMatrix, 0, 0, 0, 5, 0, 0, 0, 0, 1, 0);
 		
-		iProgId = Utils.LoadProgram(curView.getContext(), R.raw.vert_pervert, R.raw.frag_pervert);
+		iProgId = Utils.LoadProgram(curView.getContext(), R.raw.vert_perpixel, R.raw.frag_perpixel);
 		iTexId = Utils.LoadTexture(curView, R.raw.wlt01);
 		
 		iPosition = GLES20.glGetAttribLocation(iProgId, "a_position");
