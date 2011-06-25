@@ -18,18 +18,18 @@ public class ES2SurfaceView extends GLSurfaceView {
 	@Override
 	public boolean onTouchEvent(MotionEvent event)
 	{
-		/*if (event.getAction() == MotionEvent.ACTION_DOWN)
+		if (event.getAction() == MotionEvent.ACTION_DOWN)
 		{
 			touchedX = event.getX();
 			touchedY = event.getY();
 		} else if (event.getAction() == MotionEvent.ACTION_MOVE)
 		{
-			renderer.xAngle += (touchedX - event.getX())/2f;
-			renderer.yAngle += (touchedY - event.getY())/2f;
+			renderer.dx += (touchedX - event.getX())/100f;
+			renderer.dy += (touchedY - event.getY())/100f;
 			
 			touchedX = event.getX();
 			touchedY = event.getY();
-		}*/
+		}
 		return true;
 		
 	}
