@@ -8,11 +8,11 @@ public class ES2SurfaceView extends GLSurfaceView {
 
 	float touchedX = 0;
 	float touchedY = 0;
-//	PerVertexRenderer renderer;
+	FireworksRenderer renderer;
 	public ES2SurfaceView(Context context) {
 		super(context);
 		setEGLContextClientVersion(2);
-//        setRenderer(renderer = new PerVertexRenderer(this));
+        setRenderer(renderer = new FireworksRenderer(this));
 	}
 
 	@Override
