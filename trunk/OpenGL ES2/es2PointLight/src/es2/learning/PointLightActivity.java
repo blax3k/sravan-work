@@ -24,15 +24,9 @@ public class PointLightActivity extends Activity {
     }
     
     @Override
-
     public boolean onCreateOptionsMenu(Menu menu) {
     	menu.add(Menu.NONE, 0, Menu.NONE, "Per Vertex");
     	menu.add(Menu.NONE, 1, Menu.NONE, "Per Pixel");
-    	
-//      menu.add("Per Vertex");
-
-//      menu.add("Per Pixel");
-
       return super.onCreateOptionsMenu(menu);
 
     }
