@@ -21,6 +21,8 @@ public class PerVertexRenderer implements Renderer {
 	ES2SurfaceView curView;
 	public float dx=0f;
 	public float dy=0f;
+	int iProgIdPV;
+	int iProgIdPP;
 	int iProgId;
 	int iPosition;
 	int iNormals;
@@ -99,7 +101,7 @@ public class PerVertexRenderer implements Renderer {
 		GLES20.glUniformMatrix4fv(iMVMatrix, 1, false, m_fMVMatrix, 0);
 		
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, mesh.m_nIndeces, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
-
+		GLES20.glUseProgram(0);
 	}
 
 	@Override
@@ -120,7 +122,9 @@ public class PerVertexRenderer implements Renderer {
 		
 		Matrix.setLookAtM(m_fViewMatrix, 0, 0, 0, 5, 0, 0, 0, 0, 1, 0);
 		
-		iProgId = Utils.LoadProgram(curView.getContext(), R.raw.vert_perpixel, R.raw.frag_perpixel);
+		iProgIdPV = Utils.LoadProgram(curView.getContext(), R.raw.vert_pervert, R.raw.frag_pervert);
+		iProgId = iProgIdPV;
+		iProgIdPP = Utils.LoadProgram(curView.getContext(), R.raw.vert_perpixel, R.raw.frag_perpixel);
 		iTexId = Utils.LoadTexture(curView, R.raw.wlt01);
 		
 		iPosition = GLES20.glGetAttribLocation(iProgId, "a_position");
@@ -132,8 +136,12 @@ public class PerVertexRenderer implements Renderer {
 		iNormMatrix = GLES20.glGetUniformLocation(iProgId, "u_NormalsMatrix");
 		iLightPos = GLES20.glGetUniformLocation(iProgId, "u_LightPosition");
 		iLightColor = GLES20.glGetUniformLocation(iProgId, "u_LightColor");
-		
-
 	}
-
+	public void LoadProgram(int id)
+	{
+		if (id == 0)
+			iProgId = iProgIdPV;
+		else 
+			iProgId = iProgIdPP;
+	}
 }

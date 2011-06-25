@@ -33,4 +33,9 @@ public class ES2SurfaceView extends GLSurfaceView {
 		return true;
 		
 	}
+	
+	public void LoadProgram(int id)
+	{
+		renderer.LoadProgram(id);
+	}
 }
