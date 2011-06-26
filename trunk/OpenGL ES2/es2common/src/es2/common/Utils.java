@@ -108,14 +108,14 @@ public class Utils {
 			String line = br.readLine();
 			while (line!=null)
 			{
-				strVShader += line;
+				strVShader += line + "\n";
 				line = br.readLine();
 			}
 		} catch (IOException e) {
 			strVShader = "";
 			e.printStackTrace();
 		}
-		
+		Log.d("VSHADER", strVShader);
 		is = ctx.getResources().openRawResource(iFragShaderId);
 		br = new BufferedReader(new InputStreamReader(is));
 		String strFShader = "";

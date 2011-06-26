@@ -13,6 +13,7 @@ public class Mesh {
 	
 	FloatBuffer m_verticesBuffer;
 	FloatBuffer m_texBuffer;
+	FloatBuffer m_cubeTexBuffer = null;
 	ShortBuffer m_indecesBuffer;
 	FloatBuffer m_normalsBuffer;
 	
@@ -36,6 +37,11 @@ public class Mesh {
 		return m_indecesBuffer;
 	}
 	
+	public FloatBuffer getCubeTextureBuffer()
+	{
+		return m_cubeTexBuffer;
+	}
+	
 	public int Cube(float scale)
 	{
 		scale *= 0.5f;
@@ -56,6 +62,16 @@ public class Mesh {
                 0, 0,   1, 0,   1, 1,   0, 1,    // v7-v4-v3-v2 bottom
                 0, 0,   1, 0,   1, 1,   0, 1 
                 };
+		
+		float[] fCubeTextureCoords = {
+				1, 1, 1,  -1, 1, 1,  -1,-1, 1,   1,-1, 1,    // v0-v1-v2-v3 front
+                1, 1, 1,   1,-1, 1,   1,-1,-1,   1, 1,-1,    // v0-v3-v4-v5 right
+                1, 1, 1,   1, 1,-1,  -1, 1,-1,  -1, 1, 1,    // v0-v5-v6-v1 top
+               -1, 1, 1,  -1, 1,-1,  -1,-1,-1,  -1,-1, 1,    // v1-v6-v7-v2 left
+               -1,-1,-1,   1,-1,-1,   1,-1, 1,  -1,-1, 1,    // v7-v4-v3-v2 bottom
+                1,-1,-1,  -1,-1,-1,  -1, 1,-1,   1, 1,-1,
+				
+		};
 		
 		short[] sIndeces = {
                 0, 1, 2,   0, 2, 3,    // front
@@ -80,6 +96,9 @@ public class Mesh {
 		
 		m_texBuffer = ByteBuffer.allocateDirect(fTexCoords.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
 		m_texBuffer.put(fTexCoords).position(0);
+		
+		m_cubeTexBuffer= ByteBuffer.allocateDirect(fCubeTextureCoords.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		m_cubeTexBuffer.put(fCubeTextureCoords).position(0);
 		
 		m_indecesBuffer = ByteBuffer.allocateDirect(sIndeces.length * 2).order(ByteOrder.nativeOrder()).asShortBuffer();
 		m_indecesBuffer.put(sIndeces).position(0);
