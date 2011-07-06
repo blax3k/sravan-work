@@ -33,6 +33,8 @@ public class PerVertexRenderer implements Renderer {
 	int iTexLoc;
 	int iTexCoords;
 	int iTexId;
+	int iSpecLightcolor;
+	int iShine;
 	
 	float[] m_fViewMatrix = new float[16];
 	float[] m_fProjMatric = new float[16];
@@ -47,14 +49,22 @@ public class PerVertexRenderer implements Renderer {
 	FloatBuffer textureBuffer;
 	
 	Mesh mesh;
+	Mesh mesh1;
 	
-	float[] fLightPos = {0f,0f,-2.1f};
-	float[] fLightColor = {0.8f,0.2f,0.8f};
+	float[] fLightPos = {0f,0f,0f};
+	float[] fLightColor = {0.8f,0.6f,0.3f};
+	float[] fSpecColor = {0.8f,0.8f,0.8f};
+	float fShine = 30;
 	
 	public PerVertexRenderer(ES2SurfaceView es2SurfaceView) {
 		curView = es2SurfaceView;
+		
 		mesh = new Mesh();
-		mesh.Sphere(4, 10);
+		mesh.Sphere(6, 10);
+		
+		/*mesh1 = new Mesh();
+		mesh1.Sphere(6, 20);*/
+		
 		m_NormalsMat = new Mat3();
 		vertexBuffer = mesh.getVertexBuffer();
 		normalBuffer = mesh.getNormalsBuffer();
@@ -86,8 +96,11 @@ public class PerVertexRenderer implements Renderer {
 		
 		GLES20.glUniform3fv(iLightPos, 1, fLightPos, 0);
 		GLES20.glUniform3fv(iLightColor, 1, fLightColor, 0);
+		GLES20.glUniform3fv(iSpecLightcolor, 1, fSpecColor, 0);
+		GLES20.glUniform1f(iShine, fShine);
 		
 		Matrix.setIdentityM(m_fIdentity, 0);
+		Matrix.translateM(m_fIdentity, 0, -15f, 0, 0);
 		Matrix.translateM(m_fIdentity, 0, dx, dy, 0);
 		Matrix.multiplyMM(m_fMVMatrix, 0, m_fViewMatrix, 0, m_fIdentity, 0);
 		Matrix.multiplyMM(m_fMVMatrix, 0, m_fProjMatric, 0, m_fMVMatrix, 0);
@@ -101,6 +114,26 @@ public class PerVertexRenderer implements Renderer {
 		GLES20.glUniformMatrix4fv(iMVMatrix, 1, false, m_fMVMatrix, 0);
 		
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, mesh.m_nIndeces, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
+		
+		
+		Matrix.setIdentityM(m_fIdentity, 0);
+		Matrix.translateM(m_fIdentity, 0, 15f, 0, 0);
+		Matrix.translateM(m_fIdentity, 0, dx, dy, 0);
+		Matrix.multiplyMM(m_fMVMatrix, 0, m_fViewMatrix, 0, m_fIdentity, 0);
+		Matrix.multiplyMM(m_fMVMatrix, 0, m_fProjMatric, 0, m_fMVMatrix, 0);
+		
+		m_NormalsMat.SetFrom4X4(m_fMVMatrix);
+		m_NormalsMat.invert();
+		m_NormalsMat.transpose();
+		
+		GLES20.glUniformMatrix3fv(iNormMatrix, 1, false, m_NormalsMat.values, 0);
+		
+		GLES20.glUniformMatrix4fv(iMVMatrix, 1, false, m_fMVMatrix, 0);
+		
+		GLES20.glDrawElements(GLES20.GL_TRIANGLES, mesh.m_nIndeces, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
+		
+		
+		
 		GLES20.glUseProgram(0);
 	}
 
@@ -108,7 +141,8 @@ public class PerVertexRenderer implements Renderer {
 	public void onSurfaceChanged(GL10 arg0, int width, int height) {
 		GLES20.glViewport(0, 0, width, height);
 		float ratio = (float)width/(float)height;
-		Matrix.orthoM(m_fProjMatric, 0, -10f*ratio, 10f*ratio, -10f, 10f, 1, 10);
+		float p = 20f;
+		Matrix.orthoM(m_fProjMatric, 0, -p*ratio, p*ratio, -p, p, 1, 20);
 	}
 
 	@Override
@@ -120,7 +154,7 @@ public class PerVertexRenderer implements Renderer {
 		GLES20.glEnable(GLES20.GL_CULL_FACE);
 		GLES20.glCullFace(GLES20.GL_BACK);
 		
-		Matrix.setLookAtM(m_fViewMatrix, 0, 0, 0, 5, 0, 0, 0, 0, 1, 0);
+		Matrix.setLookAtM(m_fViewMatrix, 0, 0, 0, 15, 0, 0, 0, 0, 1, 0);
 		
 		iProgIdPV = Utils.LoadProgram(curView.getContext(), R.raw.vert_pervert, R.raw.frag_pervert);
 		iProgId = iProgIdPV;
@@ -136,6 +170,8 @@ public class PerVertexRenderer implements Renderer {
 		iNormMatrix = GLES20.glGetUniformLocation(iProgId, "u_NormalsMatrix");
 		iLightPos = GLES20.glGetUniformLocation(iProgId, "u_LightPosition");
 		iLightColor = GLES20.glGetUniformLocation(iProgId, "u_LightColor");
+		iSpecLightcolor = GLES20.glGetUniformLocation(iProgId, "u_SpecLightColor");
+		iShine = GLES20.glGetUniformLocation(iProgId, "u_Shine");
 	}
 	public void LoadProgram(int id)
 	{
