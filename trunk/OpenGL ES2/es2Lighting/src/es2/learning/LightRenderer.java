@@ -35,6 +35,9 @@ public class LightRenderer implements Renderer {
 	int iVNormMat;
 	int iTexCoords;
 	
+	int iSpecColor;
+	int iShine;
+	
 	public float xAngle = 0;
 	public float yAngle = 0;
 	
@@ -48,7 +51,8 @@ public class LightRenderer implements Renderer {
 	float[] m_fLightDir = {0, 0, -5};//light direction
 	float[] m_fNormalMat = new float[16];//transposed projection matrix
 	float[] m_fLightColor = {0.8f,0.6f,0.4f};//light color
-	
+	float[] m_fSpecColor = {0.8f,0.8f,0.8f};
+	float fShine = 30;
 	ES2SurfaceView curView;
 	
 	
@@ -120,6 +124,8 @@ public class LightRenderer implements Renderer {
 		GLES20.glUniform3fv(iLightColor, 1, m_fLightColor, 0);
 		GLES20.glUniform3fv(iLightDirection, 1, m_fLightDir, 0);
 		
+		GLES20.glUniform3fv(iSpecColor, 1, m_fSpecColor, 0);
+		GLES20.glUniform1f(iShine, fShine);
 		
 		Matrix.setIdentityM(m_fIdentity, 0);
 		Matrix.rotateM(m_fIdentity, 0, -xAngle, 0, 1, 0);
@@ -166,25 +172,32 @@ public class LightRenderer implements Renderer {
 				"uniform mat3 u_MVNormalsMatrix;" +
 				"varying vec3 u_Normals;" +
 				"varying vec2 v_texCoords;" +
+				"varying vec4 v_position;" +
 				"void main()" +
 				"{" +
 					"v_texCoords = a_texCoords;" +
 					"u_Normals = u_MVNormalsMatrix * a_normals;" +
 					"gl_Position = u_ModelViewMatrix * a_position;" +
+					"v_position = gl_Position;" +
 				"}";
 		String strFShaderPP = "precision mediump float;" +
 				"uniform vec3 u_LightDir;" +
-				"uniform vec3 u_LightColor;" +				
+				"uniform vec3 u_LightColor;" +	
+				"uniform vec3 u_SpecLightColor;" +
+				"uniform float u_Shine;" +
 				"uniform sampler2D u_texId;" +
 				"varying vec2 v_texCoords;" +
 				"varying vec3 u_Normals;" +
+				"varying vec4 v_position;" +
 				"void main()" +
 				"{" +
 					"vec3 LNorm = normalize(u_LightDir);" +
 					"vec3 normal = normalize(u_Normals);" +
 					"float intensity = max(dot(LNorm, normal),0.0);" +
+					"vec3 halfVec = normalize(u_LightDir-v_position.xyz);" +
+					"float specWeight = pow(max(dot(normal,halfVec),0.0),u_Shine);" +
 					"vec4 texColor = texture2D(u_texId, v_texCoords);" +
-					"vec3 calcColor = vec3(0.2,0.2,0.2) + u_LightColor * intensity;" +
+					"vec3 calcColor = vec3(0.2,0.2,0.2) + (u_LightColor * intensity) + (u_SpecLightColor*specWeight);" +
 					"gl_FragColor = vec4(texColor.rgb * calcColor, texColor.a);" +
 				"}";
 		
@@ -196,6 +209,8 @@ public class LightRenderer implements Renderer {
 			"uniform mat3 u_MVNormalsMatrix;" +
 			"uniform vec3 u_LightDir;" +
 			"uniform vec3 u_LightColor;" +
+			"uniform vec3 u_SpecLightColor;" +
+			"uniform float u_Shine;" +
 			"varying vec3 v_colorWeight;" +
 			"varying vec2 v_texCoords;" +
 			"void main()" +
@@ -205,7 +220,9 @@ public class LightRenderer implements Renderer {
 				"vec3 normal = normalize(u_MVNormalsMatrix * a_normals);" +
 				"vec3 lightNorm = normalize(u_LightDir);" +
 				"float lightWeight = max(dot(normal,lightNorm),0.0);" +
-				"v_colorWeight = vec3(0.2,0.2,0.2) + (lightWeight * u_LightColor);" +
+				"vec3 halfVec = normalize(u_LightDir - gl_Position.xyz);" +
+				"float specWeight = pow(max(dot(normal,halfVec),0.0),u_Shine);" +
+				"v_colorWeight = vec3(0.2,0.2,0.2) + (lightWeight * u_LightColor) + (u_SpecLightColor*specWeight);" +
 			"}";
 	String strFShaderPV = 
 			"precision mediump float;" +
@@ -231,6 +248,8 @@ public class LightRenderer implements Renderer {
 		iLightDirection = GLES20.glGetUniformLocation(iProgId, "u_LightDir");
 		iTexLoc = GLES20.glGetUniformLocation(iProgId, "u_texId");
 		iTexCoords = GLES20.glGetAttribLocation(iProgId, "a_texCoords");
+		iSpecColor = GLES20.glGetUniformLocation(iProgId, "u_SpecLightColor");
+		iShine = GLES20.glGetUniformLocation(iProgId, "u_Shine");
 		iTexId = Utils.LoadTexture(curView, R.raw.wlt01);
 		
 //		LoadAxisShaders();
