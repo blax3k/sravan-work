@@ -22,20 +22,26 @@ public class ViewPortRenderer implements Renderer {
 	public float xAngle = 0;
 	public float yAngle = 0;
 	
+	//to store projection matrix
 	float[] m_fProjMatrix = new float[16];
+	//to store view matrix
 	float[] m_fViewMatrix = new float[16];
-	float[] m_fIdentity = new float[16];
+	//to store projection*view matrix
 	float[] m_fVPMatrix = new float[16];
+	//to translate or rotate model 
+	float[] m_fModelM = new float[16];
+	//final result p*v*m
+	float[] m_fMVPMatrix = new float[16];
 	
 	float[] cube = {
-		2,2,0,
-		-2,2,0,
-		-2,-2,0,
-		2,-2,0,
-		2,2,-2,
-		-2,2,-2,
-		-2,-2,-2,
-		2,-2,-2
+			-2, -2, -2,
+            2, -2, -2,
+            2,  2, -2,
+            -2, 2, -2,
+            -2, -2,  2,
+            2, -2,  2,
+            2,  2,  2,
+            -2,  2,  2
 	};
 	
 	float[] colors = {
@@ -50,23 +56,23 @@ public class ViewPortRenderer implements Renderer {
 	};
 	
 	short[] indeces = {
-			0,1,2,
-			0,2,3,//back
+			0, 4, 5, 
+			0, 5, 1,
 			
-			0,4,7,//right
-			0,7,3,
-			
-			7,6,2,//bottom
-			7,2,3,
-			
-			4,5,6,//front
-			4,6,7,
-			
-			5,1,2,//left
-			5,2,6,
-			
-			0,1,5,
-			0,5,4//top
+            1, 5, 6,
+            1, 6, 2,
+            
+            2, 6, 7,
+            2, 7, 3,
+            
+            3, 7, 4, 
+            3, 4, 0,
+            
+            4, 7, 6,
+            4, 6, 5,
+            
+            3, 0, 1, 
+            3, 1, 2
 			};
 	
 	FloatBuffer cubeBuffer = null;
@@ -89,6 +95,9 @@ public class ViewPortRenderer implements Renderer {
 	@Override
 	public void onDrawFrame(GL10 arg0) {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+		//let's multiply projection and view matrices
+		Matrix.multiplyMM(m_fVPMatrix, 0, m_fProjMatrix, 0, m_fViewMatrix, 0);
+		
 		GLES20.glUseProgram(iProgId);
 		cubeBuffer.position(0);
 		GLES20.glVertexAttribPointer(iPosition, 3, GLES20.GL_FLOAT, false, 0, cubeBuffer);
@@ -98,13 +107,13 @@ public class ViewPortRenderer implements Renderer {
 		GLES20.glVertexAttribPointer(iColor, 3, GLES20.GL_FLOAT, false, 0, colorBuffer);
 		GLES20.glEnableVertexAttribArray(iColor);
 		
-		Matrix.setIdentityM(m_fIdentity, 0);
-		Matrix.rotateM(m_fIdentity, 0, -xAngle, 0, 1, 0);
-		Matrix.rotateM(m_fIdentity, 0, -yAngle, 1, 0, 0);
-		Matrix.multiplyMM(m_fVPMatrix, 0, m_fViewMatrix, 0, m_fIdentity, 0);
-		Matrix.multiplyMM(m_fVPMatrix, 0, m_fProjMatrix, 0, m_fVPMatrix, 0);
-		Matrix.translateM(m_fVPMatrix, 0, 0, 0, 1);
-		GLES20.glUniformMatrix4fv(iVPMatrix, 1, false, m_fVPMatrix, 0);
+		Matrix.setIdentityM(m_fModelM, 0);
+		Matrix.rotateM(m_fModelM, 0, xAngle, 1, 0, 0);
+		Matrix.rotateM(m_fModelM, 0, -yAngle, 0, 1, 0);
+		//multiply model matrix with view-projection matrix
+		Matrix.multiplyMM(m_fMVPMatrix, 0, m_fVPMatrix, 0, m_fModelM, 0);
+		
+		GLES20.glUniformMatrix4fv(iVPMatrix, 1, false, m_fMVPMatrix, 0);
 		
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, 36, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
 		
@@ -113,16 +122,16 @@ public class ViewPortRenderer implements Renderer {
 	@Override
 	public void onSurfaceChanged(GL10 arg0, int width, int height) {
 		GLES20.glViewport(0, 0, width, height);
-		Matrix.frustumM(m_fProjMatrix, 0, -4, 4, -4, 4, 1, 10);
+		Matrix.frustumM(m_fProjMatrix, 0, -2, 2, -2, 2, 1, 10);
 	}
 
 	@Override
 	public void onSurfaceCreated(GL10 arg0, EGLConfig arg1) {
 		GLES20.glClearColor(0, 0, 0, 1);
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-		GLES20.glFrontFace(GLES20.GL_CCW);
+		GLES20.glDepthFunc(GLES20.GL_LEQUAL);
 		
-		Matrix.setLookAtM(m_fViewMatrix, 0, 0, 0, 5, 0, 0, 0, 0, 1, 0);
+		Matrix.setLookAtM(m_fViewMatrix, 0, 0, 0, -5, 0, 0, 0, 0, 1, 0);
 		
 		String strVShader = "attribute vec4 a_position;" +
 				"attribute vec4 a_color;" +
