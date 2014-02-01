@@ -1,7 +1,5 @@
 package es2.learning.es2rendertotexture;
 
-import es2.learning.es2blureffect.R;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
@@ -16,7 +14,6 @@ public class MainActivity extends Activity {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         view = new RTTSurfaceView(this);        
-        //view.setRenderer(new MultiTexRenderer(view));        
         setContentView(view);
 	}
 
