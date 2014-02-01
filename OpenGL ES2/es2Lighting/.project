@@ -31,11 +31,4 @@
 		<nature>com.android.ide.eclipse.adt.AndroidNature</nature>
 		<nature>org.eclipse.jdt.core.javanature</nature>
 	</natures>
-	<linkedResources>
-		<link>
-			<name>es2common_src</name>
-			<type>2</type>
-			<locationURI>_android_es2common_2d5db02f/src</locationURI>
-		</link>
-	</linkedResources>
 </projectDescription>
