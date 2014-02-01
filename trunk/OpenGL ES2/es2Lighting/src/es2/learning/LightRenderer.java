@@ -43,16 +43,16 @@ public class LightRenderer implements Renderer {
 	
 	float[] m_fProjMatrix = new float[16];
 	float[] m_fViewMatrix = new float[16];
-	float[] m_fIdentity = new float[16];
+	float[] m_fModel = new float[16];
+	float[] m_fMVPMatrix = new float[16];
 	float[] m_fVPMatrix = new float[16];
 	
 	Mat3 normalMat;
 	
-	float[] m_fLightDir = {0, 0, -5};//light direction
-	float[] m_fNormalMat = new float[16];//transposed projection matrix
+	float[] m_fLightDir = {0, 2, -5};//light direction
 	float[] m_fLightColor = {0.8f,0.6f,0.4f};//light color
-	float[] m_fSpecColor = {0.8f,0.8f,0.8f};
-	float fShine = 30;
+	float[] m_fSpecColor = {0.8f,0.4f,0.2f};
+	float fShine = 80;
 	ES2SurfaceView curView;
 	
 	
@@ -103,6 +103,7 @@ public class LightRenderer implements Renderer {
 	@Override
 	public void onDrawFrame(GL10 gl) {
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+		
 		GLES20.glUseProgram(iProgId);
 		
 		cubeBuffer.position(0);
@@ -127,19 +128,13 @@ public class LightRenderer implements Renderer {
 		GLES20.glUniform3fv(iSpecColor, 1, m_fSpecColor, 0);
 		GLES20.glUniform1f(iShine, fShine);
 		
-		Matrix.setIdentityM(m_fIdentity, 0);
-		Matrix.rotateM(m_fIdentity, 0, -xAngle, 0, 1, 0);
-		Matrix.rotateM(m_fIdentity, 0, -yAngle, 1, 0, 0);
+		Matrix.setIdentityM(m_fModel, 0);
+		Matrix.rotateM(m_fModel, 0, -xAngle, 0, 1, 0);
+		Matrix.rotateM(m_fModel, 0, -yAngle, 1, 0, 0);
 		
-		Matrix.multiplyMM(m_fVPMatrix, 0, m_fViewMatrix, 0, m_fIdentity, 0);
-		Matrix.multiplyMM(m_fVPMatrix, 0, m_fProjMatrix, 0, m_fVPMatrix, 0);
-		
-		normalMat.SetFrom4X4(m_fVPMatrix);
-		normalMat.invert();
-		normalMat.transpose();
-		GLES20.glUniformMatrix3fv(iVNormMat, 1, false, normalMat.values, 0);
-		
-		GLES20.glUniformMatrix4fv(iVPMatrix, 1, false, m_fVPMatrix, 0);
+		Matrix.multiplyMM(m_fMVPMatrix, 0, m_fVPMatrix, 0, m_fModel, 0);
+				
+		GLES20.glUniformMatrix4fv(iVPMatrix, 1, false, m_fMVPMatrix, 0);
 		
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, sphere.m_nIndeces, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
 
@@ -151,6 +146,9 @@ public class LightRenderer implements Renderer {
 //		Matrix.frustumM(m_fProjMatrix, 0, -4, 4, -4, 4, 1, 20);
 		float ratio = (float)width/(float)height;
 		Matrix.orthoM(m_fProjMatrix, 0, -10f*ratio, 10f*ratio, -10, 10, 1, 20);
+		
+		//when surface is changed calculate view projection matrix
+		Matrix.multiplyMM(m_fVPMatrix, 0, m_fProjMatrix, 0, m_fViewMatrix, 0);
 	}
 
 	@Override
@@ -169,14 +167,13 @@ public class LightRenderer implements Renderer {
 				"attribute vec3 a_normals;" +
 				"attribute vec2 a_texCoords;" +
 				"uniform mat4 u_ModelViewMatrix;" +
-				"uniform mat3 u_MVNormalsMatrix;" +
 				"varying vec3 u_Normals;" +
 				"varying vec2 v_texCoords;" +
 				"varying vec4 v_position;" +
 				"void main()" +
 				"{" +
 					"v_texCoords = a_texCoords;" +
-					"u_Normals = u_MVNormalsMatrix * a_normals;" +
+					"u_Normals =  normalize(vec3(u_ModelViewMatrix * vec4(a_normals,0.0)));" +
 					"gl_Position = u_ModelViewMatrix * a_position;" +
 					"v_position = gl_Position;" +
 				"}";
@@ -206,7 +203,6 @@ public class LightRenderer implements Renderer {
 			"attribute vec3 a_normals;" +
 			"attribute vec2 a_texCoords;" +
 			"uniform mat4 u_ModelViewMatrix;" +
-			"uniform mat3 u_MVNormalsMatrix;" +
 			"uniform vec3 u_LightDir;" +
 			"uniform vec3 u_LightColor;" +
 			"uniform vec3 u_SpecLightColor;" +
@@ -217,12 +213,12 @@ public class LightRenderer implements Renderer {
 			"{" +
 				"gl_Position = u_ModelViewMatrix * a_position;" +
 				"v_texCoords = a_texCoords;" +
-				"vec3 normal = normalize(u_MVNormalsMatrix * a_normals);" +
+				"vec3 normal = normalize(vec3(u_ModelViewMatrix * vec4(a_normals,0.0)));" +
 				"vec3 lightNorm = normalize(u_LightDir);" +
 				"float lightWeight = max(dot(normal,lightNorm),0.0);" +
 				"vec3 halfVec = normalize(u_LightDir - gl_Position.xyz);" +
 				"float specWeight = pow(max(dot(normal,halfVec),0.0),u_Shine);" +
-				"v_colorWeight = vec3(0.2,0.2,0.2) + (lightWeight * u_LightColor) + (u_SpecLightColor*specWeight);" +
+				"v_colorWeight = vec3(0.0,0.0,0.0) + (lightWeight * u_LightColor) + (u_SpecLightColor*specWeight);" +
 			"}";
 	String strFShaderPV = 
 			"precision mediump float;" +
@@ -238,12 +234,11 @@ public class LightRenderer implements Renderer {
 		iProgIdPP = Utils.LoadProgram(strVShaderPP, strFShaderPP);
 		iProgIdPV = Utils.LoadProgram(strVShaderPV, strFShaderPV);
 		
-		iProgId = iProgIdPV;
+		iProgId = iProgIdPP;
 		
 		iPosition = GLES20.glGetAttribLocation(iProgId, "a_position");
 		iNormals = GLES20.glGetAttribLocation(iProgId, "a_normals");
 		iVPMatrix = GLES20.glGetUniformLocation(iProgId, "u_ModelViewMatrix");
-		iVNormMat = GLES20.glGetUniformLocation(iProgId, "u_MVNormalsMatrix");
 		iLightColor = GLES20.glGetUniformLocation(iProgId, "u_LightColor");
 		iLightDirection = GLES20.glGetUniformLocation(iProgId, "u_LightDir");
 		iTexLoc = GLES20.glGetUniformLocation(iProgId, "u_texId");
