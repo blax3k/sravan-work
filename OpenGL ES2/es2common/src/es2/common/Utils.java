@@ -1,6 +1,5 @@
 package es2.common;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +8,7 @@ import java.io.InputStreamReader;
 import javax.microedition.khronos.opengles.GL10;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
@@ -17,6 +17,22 @@ import android.opengl.GLUtils;
 import android.util.Log;
 
 public class Utils {
+	
+	public static Bitmap GetFromAssets(GLSurfaceView view,String name)
+	{
+		Bitmap img = null;
+		
+		AssetManager assetManager = view.getContext().getAssets();
+
+	    InputStream istr;
+		try {
+			istr = assetManager.open(name);
+			img = BitmapFactory.decodeStream(istr);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return img;		
+	}
 	
 	public static int LoadTexture(GLSurfaceView view, int imgResID){
 		Log.d("Utils", "Loadtexture");
@@ -29,6 +45,28 @@ public class Utils {
 			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
 			GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 			GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+			
+			GLUtils.texImage2D(GL10.GL_TEXTURE_2D, 0, img, 0);
+			Log.d("LoadTexture", "Loaded texture"+":H:"+img.getHeight()+":W:"+img.getWidth());
+		} catch (Exception e){
+			Log.d("LoadTexture", e.toString()+ ":" + e.getMessage()+":"+e.getLocalizedMessage());
+		}
+		img.recycle();
+		return textures[0];		
+	}
+	
+	static public int LoadTexture(GLSurfaceView view, String name){
+		Log.d("Utils", "Loadtexture");		
+		int textures[] = new int[1];
+		Bitmap img = GetFromAssets(view, name);
+		try {			
+			GLES20.glGenTextures(1, textures, 0);
+			
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textures[0]);
+			GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+			GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR);
+			GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_REPEAT);
+			GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
 			
 			GLUtils.texImage2D(GL10.GL_TEXTURE_2D, 0, img, 0);
 			Log.d("LoadTexture", "Loaded texture"+":H:"+img.getHeight()+":W:"+img.getWidth());

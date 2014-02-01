@@ -178,71 +178,7 @@ public class Mesh {
                          m_indecesBuffer.put(index++, (short) (i * (numSlices + 1) + (j + 1)));
 
                  }
-         }
-		
-		/*float theta;
-		float sinTheta;
-		float cosTheta;
-		float gamma;
-		float singamma;
-		float cosgamma;
-		
-		float nx, ny, nz;
-		float posx,posy,posz;
-		float u,v;
-		int vertex;
-		int texIndex;
-		for (int i = 0; i < HSlices; i++)
-		{
-			theta = (float) (i * Math.PI / HSlices);
-		    sinTheta = (float) Math.sin(theta);
-		    cosTheta = (float) Math.cos(theta);
-			for (int j=0; j<VSlices; j++)
-			{
-				vertex = ((i*(VSlices+1))+j)*3;
-				
-				gamma = (float) (j* 2 * Math.PI / VSlices);
-			    singamma = (float) Math.sin(gamma);
-			    cosgamma = (float) Math.cos(gamma);
-			    
-			    nx = cosgamma * sinTheta;
-			    ny = cosTheta;
-			    nz = singamma * sinTheta;
-			    
-			    u = 1.0f- ((float)j/(float)VSlices);
-			    v = (float)i/(float)HSlices;
-			    
-			    posx = nx * radius;
-			    posy = ny * radius;
-			    posz = nz * radius;
-			    
-			    m_verticesBuffer.put(vertex+0, posx);
-			    m_verticesBuffer.put(vertex+1, posy);
-			    m_verticesBuffer.put(vertex+2, posz);
-			    
-			    m_normalsBuffer.put(vertex+0, nx);
-			    m_normalsBuffer.put(vertex+1, ny);
-			    m_normalsBuffer.put(vertex+2, nz);
-			    
-			    texIndex = ((i*(VSlices+1))+j)*2;
-			    m_texBuffer.put(texIndex+0, u);
-			    m_texBuffer.put(texIndex+1, v);
-			}
-		}
-		int index = 0;
-		for (int i = 0; i < HSlices; i++) {
-			for (int j = 0; j < VSlices; j++) {
-				short first = (short) ((i * (VSlices + 1)) + j);
-				short second = (short) (first + VSlices + 1);
-				m_indecesBuffer.put(index++, first);
-				m_indecesBuffer.put(index++, second);
-				m_indecesBuffer.put(index++, (short) (first + 1));
-
-				m_indecesBuffer.put(index++, second);
-				m_indecesBuffer.put(index++, (short) (second + 1));
-				m_indecesBuffer.put(index++, (short) (first + 1));
-			}
-		}*/
+         }		
 		return m_nIndeces;
 	}
 }
