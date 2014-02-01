@@ -1,9 +1,5 @@
 package es2.learning.es2rendertotexture;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
@@ -13,9 +9,6 @@ import javax.microedition.khronos.opengles.GL10;
 import es2.common.Mesh;
 import es2.common.Utils;
 
-import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
@@ -52,16 +45,9 @@ public class RTTRenderer implements Renderer {
 	float[] m_fVPMat = new float[16];
 	float[] m_fMVPMat = new float[16];
 	
-	float xAngle = 0;
-	float yAngle = 0;
+	float xAngle = 20;
+	float yAngle = 20;
 	
-/*	float[] fVertices = {
-			-2f, -2f, 0,		0,1,
-			2f, -2f, 0,			1,1,
-			-2f, 2f, 0, 		0,0,
-			2f, 2f, 0,   		1,0
-			
-	};*/
 	FloatBuffer vertexBuffer;
 	FloatBuffer texBuffer;
 	FloatBuffer normalBuffer;
@@ -85,9 +71,6 @@ public class RTTRenderer implements Renderer {
 		texBuffer = cube.getTextureBuffer();
 		normalBuffer = cube.getNormalsBuffer();
 		indexBuffer = cube.getIndecesBuffer();
-		
-		/*vertexBuffer = ByteBuffer.allocateDirect(fVertices.length *4).order(ByteOrder.nativeOrder()).asFloatBuffer();
-		vertexBuffer.put(fVertices).position(0);*/
 	}
 
 	@Override
@@ -95,7 +78,6 @@ public class RTTRenderer implements Renderer {
 		fbor.RenderToTexture();
 		
 		SetProjection(vwidth,vheight);
-		
 
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT|GLES20.GL_DEPTH_BUFFER_BIT);
 		
@@ -125,7 +107,6 @@ public class RTTRenderer implements Renderer {
 		
 		GLES20.glUniformMatrix4fv(iMVPMat, 1, false, m_fMVPMat, 0);
 		
-		//GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, cube.m_nIndeces, GLES20.GL_UNSIGNED_SHORT, indexBuffer);
 
 	}
@@ -182,7 +163,7 @@ public class RTTRenderer implements Renderer {
 				"{" +
 					"vec4 col = texture2D(u_texId, v_texCoords);" +
 					"vec4 col1 = texture2D(u_texId1, v_texCoords);" +
-					"gl_FragColor = vec4(col.rgb+col1.rgb,1.0);"+//vec4(max(col.r,col1.r),max(col.g,col1.g),max(col.b,col1.b),col.a);" +
+					"gl_FragColor = vec4(col.rgb+col1.rgb,1.0);"+
 				"}";
 
 		iProgId = Utils.LoadProgram(strVShader, strFShader);
@@ -193,7 +174,6 @@ public class RTTRenderer implements Renderer {
 		iMVPMat = GLES20.glGetUniformLocation(iProgId, "u_mvpMatrix");
 		
 		fbor.LoadShaders();
-		
 		
 		iTexId = Utils.LoadTexture(curView, "thick_gold_frame.png");
 	}
