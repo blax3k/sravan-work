@@ -85,15 +85,13 @@ public class RTTRenderer implements Renderer {
 		fbor = new FBORenderer(view );
 		
 		cube = new Mesh();
-		cube.Cube(3);
+		cube.Cube(4);
 		
 		vertexBuffer = cube.getVertexBuffer();
 		texBuffer = cube.getTextureBuffer();
 		normalBuffer = cube.getNormalsBuffer();
 		indexBuffer = cube.getIndecesBuffer();
 		
-		/*vertexBuffer1 = Utils.CreateVertexArray(COORDS);
-		texBuffer1 = Utils.CreateVertexArray(TEX_COORDS);*/
 	}
 
 	@Override
@@ -123,9 +121,9 @@ public class RTTRenderer implements Renderer {
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, iTexRTT);
 		GLES20.glUniform1i(iTexLoc1, 1);
 		
-		/*GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
-		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, iTexRTT);
-		GLES20.glUniform1i(iTexLoc2, 2);*/
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, iTexId);
+		GLES20.glUniform1i(iTexLoc2, 2);
 		
 		Matrix.setIdentityM(m_fModel, 0);
 		Matrix.rotateM(m_fModel, 0, -xAngle, 0, 1, 0);
@@ -199,7 +197,8 @@ public class RTTRenderer implements Renderer {
 					"vec4 dst = texture2D(u_texId1, v_texCoords);" +
 					//"gl_FragColor = dst;"+
 					//"gl_FragColor = max(src, dst);"+
-					"gl_FragColor = clamp((src + dst) - (src * dst), 0.0, 1.0);" +
+					"vec4 bloomcolor = clamp((src + dst) - (src * dst), 0.0, 1.0);" +
+					"gl_FragColor = bloomcolor + texture2D(u_texId2, v_texCoords);" +
 					"gl_FragColor.a = 1.0;"+
 				"}";
 

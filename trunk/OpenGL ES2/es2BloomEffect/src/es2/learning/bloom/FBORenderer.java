@@ -37,7 +37,7 @@ public class FBORenderer {
 	int iOffset;
 	int iWeight;
 	
-	int iProgIdStep1, iProgIdStep2; 
+	int iProgIdBlur, iProgIdStep2; 
 	
 	public float xAngle = 50;
 	public float yAngle = 0;
@@ -46,16 +46,11 @@ public class FBORenderer {
 	
 	Mesh sphere;
 	FloatBuffer vertexBuffer, normalBuffer, texBuffer;
-	FloatBuffer /*vertexBuffer1, */texBuffer1, vertexBuffer2;
+	FloatBuffer texBuffer1, vertexBuffer2;
 	ShortBuffer indexBuffer;
 	
-	final float[] COORDS = {
-		-4f, -4f, //bottom - left
-		4f, -4f, //bottom - right
-		-4f, 4f, //top - left
-		4f, 4f //top - right
-	};
-	
+	//keep dimensions in sync with projection dimensions
+	//since rect should of full screen to map fbo
 	final float[] COORDS1 = {
 			-5f, -5f, //bottom - left
 			5f, -5f, //bottom - right
@@ -77,8 +72,8 @@ public class FBORenderer {
 	float[] m_fMVPMatrix = new float[16];
 	
 	
-	int iDirection, iBlurAmount, iOffset3;
-	int iBlurScale, iBlurStrength, iWeight3;
+	int iDirection, iBlurAmount;
+	int iBlurScale, iBlurStrength;
 	
 	public FBORenderer(GLSurfaceView view) {
 		curView = view;
@@ -90,7 +85,6 @@ public class FBORenderer {
 		texBuffer = sphere.getTextureBuffer();
 		normalBuffer = sphere.getNormalsBuffer();
 		
-		//vertexBuffer1 = Utils.CreateVertexArray(COORDS);
 		vertexBuffer2 = Utils.CreateVertexArray(COORDS1);
 		texBuffer1 = Utils.CreateVertexArray(TEX_COORDS);
 		
@@ -120,7 +114,7 @@ public class FBORenderer {
 					
 		iProgIdRTT = Utils.LoadProgram(strVShader, strFShaderRTT);
 		
-		iProgIdStep1 = Utils.LoadProgram(curView.getContext(), "vertex.vsh","gaussianblur.fsh");
+		iProgIdBlur = Utils.LoadProgram(curView.getContext(), "vertex.vsh","gaussianblur.fsh");
 		
 		
 		iTexId1 = Utils.LoadTexture(curView, "pattern.png");
@@ -202,10 +196,8 @@ public class FBORenderer {
 		Matrix.multiplyMM(m_fVPMatrix, 0, m_fProjMatrix, 0, m_fViewMatrix, 0);
 		//render scene to texture fboTex
 		RenderToTexture();
-		//apply horizontal blur on fboTex store result in fboTexStep1
-		BlurStep1();
-		//apply horizontal blur on fboTex store result in fboTexStep2
-		BlurStep2();
+		
+		Blur();
 	}
 	
 	public void RenderToTexture()
@@ -255,23 +247,34 @@ public class FBORenderer {
 	 * Step2: apply horizontal blur on Step1
 	 */
 	
-	public void BlurStep1()
+	public void Blur()
 	{
-		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboIdStep1);
+		iPositionRTT = GLES20.glGetAttribLocation(iProgIdBlur, "a_position");
+		iTexCoordsRTT = GLES20.glGetAttribLocation(iProgIdBlur, "a_texCoords");		
+		iTexLocRTT = GLES20.glGetUniformLocation(iProgIdBlur, "u_texId");
+		iVPMatrix = GLES20.glGetUniformLocation(iProgIdBlur, "u_ModelViewMatrix");
 		
-		iPositionRTT = GLES20.glGetAttribLocation(iProgIdStep1, "a_position");
-		iTexCoordsRTT = GLES20.glGetAttribLocation(iProgIdStep1, "a_texCoords");		
-		iTexLocRTT = GLES20.glGetUniformLocation(iProgIdStep1, "u_texId");
-		iVPMatrix = GLES20.glGetUniformLocation(iProgIdStep1, "u_ModelViewMatrix");
+		iDirection = GLES20.glGetUniformLocation(iProgIdBlur, "direction");
+		iBlurScale = GLES20.glGetUniformLocation(iProgIdBlur, "blurScale");
+		iBlurAmount = GLES20.glGetUniformLocation(iProgIdBlur, "blurAmount");
+		iBlurStrength = GLES20.glGetUniformLocation(iProgIdBlur, "blurStrength");
 		
-		iDirection = GLES20.glGetUniformLocation(iProgIdStep1, "direction");
-		iBlurScale = GLES20.glGetUniformLocation(iProgIdStep1, "blurScale");
-		iBlurAmount = GLES20.glGetUniformLocation(iProgIdStep1, "blurAmount");
-		iBlurStrength = GLES20.glGetUniformLocation(iProgIdStep1, "blurStrength");
+		GLES20.glUseProgram(iProgIdBlur);
+		
+		//apply horizontal blur on fboTex store result in fboTexStep1
+		BlurStep(1);
+		//apply horizontal blur on fboTex store result in fboTexStep2
+		BlurStep(2);
+	}
+	
+	public void BlurStep(int step)
+	{
+		if (step == 1)
+			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboIdStep1); 
+		else if (step == 2)
+			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboIdStep2);
 		
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT|GLES20.GL_DEPTH_BUFFER_BIT);
-		
-		GLES20.glUseProgram(iProgIdStep1);
 		
 		vertexBuffer.position(0);
 		GLES20.glVertexAttribPointer(iPositionRTT, 2, GLES20.GL_FLOAT, false, 0, vertexBuffer2);
@@ -282,7 +285,11 @@ public class FBORenderer {
 		GLES20.glEnableVertexAttribArray(iTexCoordsRTT);
 		
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, fboTex);
+		if (step == 1)
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, fboTex);
+		else if (step == 2)
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, fboTexStep1);
+		
 		GLES20.glUniform1i(iTexLocRTT, 0);
 		
 		Matrix.setIdentityM(m_fModel, 0);		
@@ -291,7 +298,10 @@ public class FBORenderer {
 		
 		GLES20.glUniformMatrix4fv(iVPMatrix, 1, false, m_fMVPMatrix, 0);
 		
-		GLES20.glUniform1i(iDirection, 0);
+		if (step == 1)
+			GLES20.glUniform1i(iDirection, 0);
+		else if (step == 2)
+			GLES20.glUniform1i(iDirection, 1);
 		
 		GLES20.glUniform1f(iBlurScale,  1.0f);
 		
@@ -303,24 +313,24 @@ public class FBORenderer {
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 	}
 	
-	public void BlurStep2()
+	/*public void BlurStep2()
 	{
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fboIdStep2);
 		
-		iPositionRTT = GLES20.glGetAttribLocation(iProgIdStep1, "a_position");
-		iTexCoordsRTT = GLES20.glGetAttribLocation(iProgIdStep1, "a_texCoords");		
-		iTexLocRTT = GLES20.glGetUniformLocation(iProgIdStep1, "u_texId");
-		iVPMatrix = GLES20.glGetUniformLocation(iProgIdStep1, "u_ModelViewMatrix");
+		iPositionRTT = GLES20.glGetAttribLocation(iProgIdBlur, "a_position");
+		iTexCoordsRTT = GLES20.glGetAttribLocation(iProgIdBlur, "a_texCoords");		
+		iTexLocRTT = GLES20.glGetUniformLocation(iProgIdBlur, "u_texId");
+		iVPMatrix = GLES20.glGetUniformLocation(iProgIdBlur, "u_ModelViewMatrix");
 		
-		iDirection = GLES20.glGetUniformLocation(iProgIdStep1, "direction");
-		iBlurScale = GLES20.glGetUniformLocation(iProgIdStep1, "blurScale");
-		iBlurAmount = GLES20.glGetUniformLocation(iProgIdStep1, "blurAmount");
-		iBlurStrength = GLES20.glGetUniformLocation(iProgIdStep1, "blurStrength");
+		iDirection = GLES20.glGetUniformLocation(iProgIdBlur, "direction");
+		iBlurScale = GLES20.glGetUniformLocation(iProgIdBlur, "blurScale");
+		iBlurAmount = GLES20.glGetUniformLocation(iProgIdBlur, "blurAmount");
+		iBlurStrength = GLES20.glGetUniformLocation(iProgIdBlur, "blurStrength");
 		
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT|GLES20.GL_DEPTH_BUFFER_BIT);
 		
 		
-		GLES20.glUseProgram(iProgIdStep1);
+		GLES20.glUseProgram(iProgIdBlur);
 		
 		vertexBuffer.position(0);
 		GLES20.glVertexAttribPointer(iPositionRTT, 2, GLES20.GL_FLOAT, false, 0, vertexBuffer2);
@@ -350,6 +360,6 @@ public class FBORenderer {
 		GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);		
 		
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-	}
+	}*/
 
 }

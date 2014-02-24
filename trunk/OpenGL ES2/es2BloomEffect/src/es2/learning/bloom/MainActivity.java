@@ -1,7 +1,6 @@
 package es2.learning.bloom;
 
 import es2.learning.bloom.R;
-import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.app.Activity;
 import android.view.Menu;
@@ -10,15 +9,17 @@ import android.view.WindowManager;
 
 public class MainActivity extends Activity {
 
-	GLSurfaceView view;
+	RTTSurfaceView view;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        view = new GLSurfaceView(this);
+        view = new RTTSurfaceView(this);       
+        
+       /* view = new GLSurfaceView(this);
         view.setEGLContextClientVersion(2);
-        view.setRenderer(new RTTRenderer(view));
+        view.setRenderer(new RTTRenderer(view));*/
         setContentView(view);
 	}
 
