@@ -4,9 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 
 import javax.microedition.khronos.opengles.GL10;
 
+import android.R.string;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -21,17 +25,25 @@ public class Utils {
 	public static Bitmap GetFromAssets(GLSurfaceView view,String name)
 	{
 		Bitmap img = null;
-		
+		//get asset manager
 		AssetManager assetManager = view.getContext().getAssets();
-
 	    InputStream istr;
 		try {
+			//open image to input stream 
 			istr = assetManager.open(name);
+			//decode input stream
 			img = BitmapFactory.decodeStream(istr);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return img;		
+	}
+	
+	static public FloatBuffer CreateVertexArray(float[] coord)
+	{
+		FloatBuffer fb= ByteBuffer.allocateDirect(coord.length * 4).order(ByteOrder.nativeOrder()).asFloatBuffer();
+		fb.put(coord).position(0);
+		return fb;
 	}
 	
 	public static int LoadTexture(GLSurfaceView view, int imgResID){
@@ -134,42 +146,46 @@ public class Utils {
 		    return min + (max - min) * fRandNum;
 	}
 	
-	public static int LoadProgram(Context ctx , int iVertShaderId, int iFragShaderId)
+	public static int LoadProgram(Context ctx , String strVertShader, String strFragShader)
 	{
-		
-		InputStream is = ctx.getResources().openRawResource(iVertShaderId);
-		BufferedReader br = new BufferedReader(new InputStreamReader(is));
-		
 		String strVShader = "";
-		
-		try {
-			String line = br.readLine();
-			while (line!=null)
-			{
-				strVShader += line + "\n";
-				line = br.readLine();
-			}
-		} catch (IOException e) {
-			strVShader = "";
-			e.printStackTrace();
-		}
-		Log.d("VSHADER", strVShader);
-		is = ctx.getResources().openRawResource(iFragShaderId);
-		br = new BufferedReader(new InputStreamReader(is));
 		String strFShader = "";
-		
-		try {
-			String line = br.readLine();
-			while (line!=null)
-			{
-				strFShader += line;
-				line = br.readLine();
+		try 
+		{
+			AssetManager assetManager = ctx.getAssets();
+			InputStream is = assetManager.open(strVertShader);
+			BufferedReader br = new BufferedReader(new InputStreamReader(is));
+			try {
+				String line = br.readLine();
+				while (line!=null)
+				{
+					strVShader += line + "\n";
+					line = br.readLine();
+				}
+			} catch (IOException e) {
+				strVShader = "";
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			strFShader = "";
-			e.printStackTrace();
+			Log.d("VSHADER", strVShader);
+			is = assetManager.open(strFragShader);
+			br = new BufferedReader(new InputStreamReader(is));
+			
+			
+			try {
+				String line = br.readLine();
+				while (line!=null)
+				{
+					strFShader += line;
+					line = br.readLine();
+				}
+			} catch (IOException e) {
+				strFShader = "";
+				e.printStackTrace();
+			}
+			Log.d("FSHADER", strFShader);
+		} catch (Exception e){
+			Log.d("LoadTexture", e.toString()+ ":" + e.getMessage()+":"+e.getLocalizedMessage());
 		}
-		
 		return LoadProgram(strVShader, strFShader);
 	}
 }
